@@ -1,0 +1,41 @@
+discover_and_rank_jobs_task:
+  description: >
+    Scrape fresh job postings for the candidate profile: {profile_summary}.
+    Extract required skills, salary ranges, and compute semantic compatibility scores.
+  expected_output: >
+    A ranked list of JobRequirement schemas ordered by compatibility score with highlighted target areas.
+
+audit_candidate_profile_task:
+  description: >
+    Parse the candidate's uploaded resume and inspect GitHub repositories: {github_username}.
+    Extract verified languages, libraries, architectural achievements, and concrete commit metrics.
+  expected_output: >
+    A structured CandidateProfile schema containing verified technical capabilities and ground truth.
+
+analyze_skill_gap_and_roadmap_task:
+  description: >
+    Cross-reference the candidate's verified profile against target job {job_title}.
+    Generate a gap matrix and design a 48-hour mini-project with realistic milestones.
+  expected_output: >
+    A RoadmapPlan schema with clear skill gap breakdown and a 48h step-by-step project blueprint.
+
+tailor_ats_resume_task:
+  description: >
+    Synthesize an ATS-optimized resume for job {job_title}.
+    Use Google X-Y-Z formula: Accomplished [X] as measured by [Y], by doing [Z].
+  expected_output: >
+    A complete tailored resume in Markdown format ready for Typst compilation.
+
+audit_resume_truthfulness_task:
+  description: >
+    Audit the generated tailored resume against candidate ground truth.
+    Flag any unsupported claims, inflated metrics, or hallucinated technologies.
+  expected_output: >
+    Audit report with approved status or required revision list.
+
+evaluate_star_interview_task:
+  description: >
+    Review candidate's transcribed interview answer for question: {question}.
+    Score each dimension of STAR: Situation, Task, Action, and Result from 0 to 100 with improvement tips.
+  expected_output: >
+    A StarEvaluation schema detailing rubric scores, strengths, and recommended polished response.

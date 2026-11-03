@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY backend/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY agent_engine/ /app/agent_engine/
+COPY backend/ /app/backend/
+
+WORKDIR /app/agent_engine
+
+CMD ["celery", "-A", "tasks.celery_tasks", "worker", "--loglevel=info", "-c", "2"]
