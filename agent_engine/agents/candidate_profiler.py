@@ -21,13 +21,15 @@ class CandidateProfilerAgent:
         cv_bytes: Optional[bytes] = None,
         cv_text: Optional[str] = None,
         github_username: Optional[str] = None,
+        filename: str = "",
+        mime_type: str = "",
     ) -> Dict[str, Any]:
         evidence_items: List[Dict[str, Any]] = []
 
-        # 1. Parse CV (PDF or raw text)
+        # 1. Parse CV (PDF, Scanned Image, or raw text)
         parsed_cv: Dict[str, Any] = {}
         if cv_bytes:
-            parsed_cv = self.doc_parser.parse_pdf(cv_bytes)
+            parsed_cv = self.doc_parser.parse_file(cv_bytes, filename=filename, mime_type=mime_type)
         elif cv_text:
             parsed_cv = self.doc_parser.extract_structured_profile(cv_text)
         else:

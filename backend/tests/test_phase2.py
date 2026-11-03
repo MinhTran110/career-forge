@@ -40,6 +40,35 @@ async def test_document_parser_and_metrics():
 
 
 @pytest.mark.asyncio
+async def test_image_scan_and_contextual_chunking():
+    parser = DocumentParserTool()
+
+    # 1. Test image scan parsing
+    from PIL import Image as PILImage
+    img = PILImage.new("RGB", (100, 100), color="white")
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    img_bytes = buf.getvalue()
+
+    res = parser.parse_file(img_bytes, filename="scanned_resume.png", mime_type="image/png")
+    assert res["source_type"] == "image_scan"
+    assert "skills" in res
+
+    # 2. Test contextual hierarchical chunking
+    structured_doc = """
+    Work Experience
+    - Scaled FastAPI backend handling 10k RPS in production.
+    - Reduced database query latency by 45% using Redis caching.
+    Key Projects
+    - Built CareerForge multi-agent system with React 19 and CrewAI.
+    """
+    profile = parser.extract_structured_profile(structured_doc)
+    chunks = profile["experience_chunks"]
+    assert any("[Work Experience]:" in c for c in chunks)
+    assert any("[Key Projects]:" in c for c in chunks)
+
+
+@pytest.mark.asyncio
 async def test_vector_grounding_and_claim_verification():
     vtool = VectorRetrieverTool(collection_name=f"test_evidence_{uuid.uuid4().hex[:6]}")
     candidate_id = f"cand_{uuid.uuid4().hex[:8]}"

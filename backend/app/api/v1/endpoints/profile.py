@@ -23,8 +23,12 @@ async def setup_candidate_profile(
     db: AsyncSession = Depends(get_db),
 ):
     cv_bytes = None
+    filename = ""
+    mime_type = ""
     if cv_file:
         cv_bytes = await cv_file.read()
+        filename = cv_file.filename or ""
+        mime_type = cv_file.content_type or ""
 
     # Run profiling and grounding pipeline
     result = profiler_agent.profile_and_ground(
@@ -33,6 +37,8 @@ async def setup_candidate_profile(
         email=current_user.email,
         cv_bytes=cv_bytes,
         github_username=github_username,
+        filename=filename,
+        mime_type=mime_type,
     )
 
     # Persist in PostgreSQL
