@@ -4,12 +4,15 @@ export interface Job {
   company: string;
   location: string;
   salary_range: string;
-  job_type: 'Remote' | 'Hybrid' | 'Onsite';
+  job_type: 'Remote' | 'Hybrid' | 'Onsite' | string;
   url: string;
   description: string;
   requirements: string[];
   tech_stack: string[];
   match_score: number;
+  tier?: 'safe' | 'target' | 'reach' | string;
+  matched_skills?: string[];
+  missing_skills?: string[];
 }
 
 export interface SkillGapItem {
