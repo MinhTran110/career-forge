@@ -17,12 +17,12 @@ class Settings(BaseSettings):
     ]
 
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://careerforge:careerforge_secret@localhost:5432/careerforge_db"
+    DATABASE_URL: str = "postgresql+asyncpg://careerforge:careerforge_secret@localhost:5434/careerforge_db"
 
     # Redis & Celery
-    REDIS_URL: str = "redis://localhost:6379/0"
-    CELERY_BROKER_URL: str = "redis://localhost:6379/1"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
+    REDIS_URL: str = "redis://localhost:6381/0"
+    CELERY_BROKER_URL: str = "redis://localhost:6381/1"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6381/2"
 
     # Qdrant Vector Search
     QDRANT_HOST: str = "localhost"
