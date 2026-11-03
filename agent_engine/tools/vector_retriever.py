@@ -1,8 +1,9 @@
 import math
 import re
 import uuid
-from typing import List, Dict, Any, Optional
 from pathlib import Path
+from typing import Any
+
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qmodels
 
@@ -16,7 +17,7 @@ class VectorRetrieverTool:
         self.collection_name = collection_name
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Connect to server if available, otherwise use embedded local disk engine, fallback to :memory: if locked
         try:
             self.client = QdrantClient(host="localhost", port=6333, timeout=2.0, check_compatibility=False)
@@ -40,7 +41,7 @@ class VectorRetrieverTool:
                 ),
             )
 
-    def _generate_dense_vector(self, text: str) -> List[float]:
+    def _generate_dense_vector(self, text: str) -> list[float]:
         """Generates a normalized dense vector embedding for semantic matching."""
         vector = [0.0] * self.VECTOR_DIM
         words = re.findall(r'\w+', text.lower())
@@ -57,14 +58,14 @@ class VectorRetrieverTool:
         norm = math.sqrt(sum(x * x for x in vector)) or 1.0
         return [round(x / norm, 6) for x in vector]
 
-    def index_evidence(self, candidate_id: str, evidence_items: List[Dict[str, Any]]) -> int:
+    def index_evidence(self, candidate_id: str, evidence_items: list[dict[str, Any]]) -> int:
         """Indexes atomic evidence chunks (from CV & GitHub) into Qdrant."""
         points = []
         for item in evidence_items:
             text = item.get("text", "")
             if not text:
                 continue
-            
+
             vec = self._generate_dense_vector(text)
             point_id = str(uuid.uuid4())
             points.append(
@@ -85,7 +86,7 @@ class VectorRetrieverTool:
             self.client.upsert(collection_name=self.collection_name, points=points)
         return len(points)
 
-    def retrieve_evidence(self, candidate_id: str, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+    def retrieve_evidence(self, candidate_id: str, query: str, limit: int = 5) -> list[dict[str, Any]]:
         """Queries semantically relevant evidence chunks for a given capability claim."""
         query_vec = self._generate_dense_vector(query)
         filter_condition = qmodels.Filter(
@@ -114,7 +115,7 @@ class VectorRetrieverTool:
             for res in results.points
         ]
 
-    def verify_claim(self, candidate_id: str, claim: str, threshold: float = 0.5) -> Dict[str, Any]:
+    def verify_claim(self, candidate_id: str, claim: str, threshold: float = 0.5) -> dict[str, Any]:
         """Audits a resume bullet point against the candidate's ground-truth lake."""
         evidences = self.retrieve_evidence(candidate_id, claim, limit=3)
         top_score = evidences[0]["score"] if evidences else 0.0

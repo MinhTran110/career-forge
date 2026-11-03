@@ -1,4 +1,5 @@
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from agent_engine.tools.job_hunter_tool import JobHunterTool
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
 
@@ -6,16 +7,16 @@ from agent_engine.tools.vector_retriever import VectorRetrieverTool
 class MarketHunterAgent:
     """Agent 1: Ingests market jobs, runs semantic matching, and classifies into Safe, Target, Reach tiers."""
 
-    def __init__(self, vector_tool: Optional[VectorRetrieverTool] = None):
+    def __init__(self, vector_tool: VectorRetrieverTool | None = None):
         self.hunter_tool = JobHunterTool()
         self.vector_tool = vector_tool or VectorRetrieverTool()
 
     def evaluate_and_rank_jobs(
         self,
         candidate_id: str,
-        candidate_skills: List[str],
-        target_roles: Optional[List[str]] = None,
-    ) -> List[Dict[str, Any]]:
+        candidate_skills: list[str],
+        target_roles: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
         raw_jobs = self.hunter_tool.fetch_market_jobs(target_roles=target_roles)
         candidate_skills_lower = {s.lower() for s in candidate_skills}
 

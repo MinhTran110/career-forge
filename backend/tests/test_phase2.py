@@ -1,13 +1,14 @@
-import pytest
 import io
 import uuid
-from httpx import AsyncClient, ASGITransport
-from pypdf import PdfWriter
-from app.main import app
-from app.core.database import init_db
+
+import pytest
 from agent_engine.tools.document_parser import DocumentParserTool
-from agent_engine.tools.github_graphql import GitHubGraphQLTool
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
+from httpx import ASGITransport, AsyncClient
+from pypdf import PdfWriter
+
+from app.core.database import init_db
+from app.main import app
 
 
 def create_dummy_resume_pdf() -> bytes:

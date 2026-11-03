@@ -1,8 +1,10 @@
-import pytest
 import uuid
-from httpx import AsyncClient, ASGITransport
-from app.main import app
+
+import pytest
+from httpx import ASGITransport, AsyncClient
+
 from app.core.database import init_db
+from app.main import app
 
 
 @pytest.mark.asyncio

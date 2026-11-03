@@ -1,6 +1,6 @@
 import os
 import tempfile
-from typing import Dict, Any
+from typing import Any
 
 
 class AudioTranscriber:
@@ -8,7 +8,7 @@ class AudioTranscriber:
     def __init__(self, model_name: str = "base"):
         self.model_name = model_name
 
-    async def transcribe_audio(self, audio_bytes: bytes, filename: str = "speech.wav") -> Dict[str, Any]:
+    async def transcribe_audio(self, audio_bytes: bytes, filename: str = "speech.wav") -> dict[str, Any]:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_path = tmp.name

@@ -1,20 +1,20 @@
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import (
-    verify_password,
-    get_password_hash,
     create_access_token,
     get_current_user,
+    get_password_hash,
+    verify_password,
 )
-from app.models.user import User
 from app.models.profile import Profile
-from app.schemas import Token, UserResponse, UserCreate
-
+from app.models.user import User
+from app.schemas import Token, UserCreate, UserResponse
 
 router = APIRouter()
 

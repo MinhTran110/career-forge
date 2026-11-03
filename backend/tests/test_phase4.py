@@ -1,13 +1,15 @@
-import pytest
 import uuid
-from httpx import AsyncClient, ASGITransport
-from app.main import app
-from app.core.database import init_db
-from agent_engine.agents.skill_strategist import SkillStrategistAgent
-from agent_engine.agents.resume_strategist import ResumeStrategistAgent
-from agent_engine.agents.fact_checker import FactCheckerAgent
+
+import pytest
 from agent_engine.agents.application_engine import ApplicationEngine
+from agent_engine.agents.fact_checker import FactCheckerAgent
+from agent_engine.agents.resume_strategist import ResumeStrategistAgent
+from agent_engine.agents.skill_strategist import SkillStrategistAgent
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
+from httpx import ASGITransport, AsyncClient
+
+from app.core.database import init_db
+from app.main import app
 
 
 @pytest.mark.asyncio

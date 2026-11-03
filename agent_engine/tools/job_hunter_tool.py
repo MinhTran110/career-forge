@@ -1,7 +1,7 @@
 import hashlib
 import re
-from typing import List, Dict, Any
-from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
+from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 
 class JobHunterTool:
@@ -77,7 +77,7 @@ class JobHunterTool:
         raw_key = f"{norm_company}_{norm_title}_{norm_location}"
         return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
 
-    def fetch_market_jobs(self, target_roles: List[str] = None) -> List[Dict[str, Any]]:
+    def fetch_market_jobs(self, target_roles: list[str] = None) -> list[dict[str, Any]]:
         """Fetches raw market jobs, strips tracking query strings, and attaches fingerprints."""
         processed_jobs = []
         for job in self.SEED_MARKET_JOBS:

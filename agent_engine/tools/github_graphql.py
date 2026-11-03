@@ -1,5 +1,6 @@
 import os
-from typing import Dict, Any, List
+from typing import Any
+
 import httpx
 
 
@@ -9,7 +10,7 @@ class GitHubGraphQLTool:
     def __init__(self, token: str = ""):
         self.token = token or os.getenv("GITHUB_TOKEN", "")
 
-    def fetch_user_evidence(self, username: str) -> Dict[str, Any]:
+    def fetch_user_evidence(self, username: str) -> dict[str, Any]:
         if not username:
             return {"error": "Username not provided", "verified_repos": [], "languages": []}
 
@@ -52,7 +53,7 @@ class GitHubGraphQLTool:
                                 "key_commits": [f"Maintained {r.get('name')} with focus on {lang or 'system'} architecture."],
                                 "description": r.get("description") or "Open source project repository",
                             })
-                
+
                 # If API rate-limited or empty, provide ground-truth structure
                 if not repos:
                     repos = [
@@ -73,7 +74,7 @@ class GitHubGraphQLTool:
                     "top_languages": list(languages),
                     "verified_repos": repos[:6],
                 }
-        except Exception as e:
+        except Exception:
             # Fallback gracefully
             return {
                 "username": username,

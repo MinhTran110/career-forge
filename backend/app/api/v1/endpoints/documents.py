@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response
 from pydantic import BaseModel
-from app.services.typst_compiler import typst_compiler
 
+from app.services.typst_compiler import typst_compiler
 
 router = APIRouter()
 

@@ -1,5 +1,5 @@
+
 from pydantic import BaseModel, Field
-from typing import List, Optional
 
 
 class StarEvaluationSchema(BaseModel):
@@ -11,6 +11,6 @@ class StarEvaluationSchema(BaseModel):
     action_score: float = Field(ge=0.0, le=100.0)
     result_score: float = Field(ge=0.0, le=100.0)
     overall_score: float = 0.0
-    strengths: List[str] = Field(default_factory=list)
-    critique: List[str] = Field(default_factory=list)
-    exemplary_star_answer: Optional[str] = None
+    strengths: list[str] = Field(default_factory=list)
+    critique: list[str] = Field(default_factory=list)
+    exemplary_star_answer: str | None = None

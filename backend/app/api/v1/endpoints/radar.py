@@ -1,25 +1,25 @@
 import uuid
-from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, Query, HTTPException, status
-from typing import List, Optional
-from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import UTC, datetime
+
+from agent_engine.agents.market_hunter import MarketHunterAgent
+from agent_engine.tools.vector_retriever import VectorRetrieverTool
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.user import User
-from app.models.profile import Profile
 from app.models.job import Job
+from app.models.profile import Profile
+from app.models.user import User
 from app.schemas import JobResponse
-from agent_engine.agents.market_hunter import MarketHunterAgent
-from agent_engine.tools.vector_retriever import VectorRetrieverTool
 
 router = APIRouter()
 vector_tool = VectorRetrieverTool()
 market_hunter = MarketHunterAgent(vector_tool=vector_tool)
 
 
-@router.post("/scan", response_model=List[JobResponse])
+@router.post("/scan", response_model=list[JobResponse])
 async def trigger_market_scan(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -47,7 +47,7 @@ async def trigger_market_scan(
         exist_stmt = select(Job).where(Job.fingerprint == fp)
         existing_job = (await db.execute(exist_stmt)).scalar_one_or_none()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if existing_job:
             # Update last_seen_at & match score
             existing_job.match_score = item["match_score"]
@@ -87,10 +87,10 @@ async def trigger_market_scan(
     return persisted_jobs
 
 
-@router.get("/jobs", response_model=List[JobResponse])
+@router.get("/jobs", response_model=list[JobResponse])
 async def get_recommended_jobs(
-    tier: Optional[str] = Query("all", description="Filter by tier: all, safe, target, reach"),
-    job_type: Optional[str] = Query("all", description="Filter by job type: all, Remote, Hybrid, Onsite"),
+    tier: str | None = Query("all", description="Filter by tier: all, safe, target, reach"),
+    job_type: str | None = Query("all", description="Filter by job type: all, Remote, Hybrid, Onsite"),
     min_score: float = Query(0.0, ge=0.0, le=100.0),
     db: AsyncSession = Depends(get_db),
 ):
@@ -106,7 +106,7 @@ async def get_recommended_jobs(
             candidate_id="default_candidate",
             candidate_skills=["Python", "FastAPI", "React", "Docker", "PostgreSQL", "Redis"],
         )
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for s in sample_jobs:
             new_job = Job(
                 id=f"job_{uuid.uuid4().hex[:10]}",

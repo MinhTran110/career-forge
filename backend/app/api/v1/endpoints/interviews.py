@@ -1,6 +1,6 @@
-from fastapi import APIRouter, UploadFile, File
-from app.schemas import InterviewSessionResponse
+from fastapi import APIRouter, File, UploadFile
 
+from app.schemas import InterviewSessionResponse
 
 router = APIRouter()
 

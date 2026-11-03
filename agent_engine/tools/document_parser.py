@@ -1,8 +1,9 @@
 import io
 import re
-from typing import Dict, Any, List, Optional
-from pypdf import PdfReader
+from typing import Any
+
 from PIL import Image
+from pypdf import PdfReader
 
 
 class DocumentParserTool:
@@ -42,7 +43,7 @@ class DocumentParserTool:
         "vllm": "vLLM",
     }
 
-    def parse_file(self, file_bytes: bytes, filename: str = "", mime_type: str = "") -> Dict[str, Any]:
+    def parse_file(self, file_bytes: bytes, filename: str = "", mime_type: str = "") -> dict[str, Any]:
         """Auto-detects document format: Native PDF, Scanned PDF, or Image file (PNG/JPG)."""
         filename_lower = filename.lower()
         is_image = (
@@ -55,7 +56,7 @@ class DocumentParserTool:
         else:
             return self.parse_pdf(file_bytes)
 
-    def parse_image(self, image_bytes: bytes) -> Dict[str, Any]:
+    def parse_image(self, image_bytes: bytes) -> dict[str, Any]:
         """Extracts text from image scans using OCR or Multimodal Vision fallback."""
         extracted_text = ""
         try:
@@ -68,7 +69,7 @@ class DocumentParserTool:
 
         return self.extract_structured_profile(extracted_text, source_type="image_scan")
 
-    def parse_pdf(self, file_bytes: bytes) -> Dict[str, Any]:
+    def parse_pdf(self, file_bytes: bytes) -> dict[str, Any]:
         """Extracts text from PDF, automatically falling back to OCR if PDF is purely scanned images."""
         reader = PdfReader(io.BytesIO(file_bytes))
         full_text = ""
@@ -95,7 +96,7 @@ class DocumentParserTool:
 
         return self.extract_structured_profile(full_text, source_type="pdf_document")
 
-    def extract_structured_profile(self, text: str, source_type: str = "document") -> Dict[str, Any]:
+    def extract_structured_profile(self, text: str, source_type: str = "document") -> dict[str, Any]:
         text_lower = text.lower()
         matched_skills = [
             canonical_name
@@ -138,5 +139,5 @@ class DocumentParserTool:
             "raw_text": text,
             "skills": sorted(list(set(matched_skills))),
             "metric_highlights": metrics[:5],
-            "experience_chunks": contextual_chunks or [f"[General]: {l}" for l in lines if len(l) > 25],
+            "experience_chunks": contextual_chunks or [f"[General]: {line_item}" for line_item in lines if len(line_item) > 25],
         }

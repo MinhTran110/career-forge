@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
-from typing import Optional, Dict, Any, List
-from sqlalchemy.ext.asyncio import AsyncSession
+
+from agent_engine.agents.candidate_profiler import CandidateProfilerAgent
+from agent_engine.tools.vector_retriever import VectorRetrieverTool
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.user import User
 from app.models.profile import Profile
-from agent_engine.agents.candidate_profiler import CandidateProfilerAgent
-from agent_engine.tools.vector_retriever import VectorRetrieverTool
+from app.models.user import User
 
 router = APIRouter()
 vector_tool = VectorRetrieverTool()
@@ -17,8 +17,8 @@ profiler_agent = CandidateProfilerAgent(vector_tool=vector_tool)
 
 @router.post("/setup")
 async def setup_candidate_profile(
-    github_username: Optional[str] = Form(None),
-    cv_file: Optional[UploadFile] = File(None),
+    github_username: str | None = Form(None),
+    cv_file: UploadFile | None = File(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

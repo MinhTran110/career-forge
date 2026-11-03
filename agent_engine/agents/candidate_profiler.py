@@ -1,14 +1,18 @@
-from typing import Dict, Any, Optional, List
+from typing import Any
+
+from agent_engine.schemas.candidate_schema import (
+    CandidateProfileSchema,
+    RepositoryProof,
+)
 from agent_engine.tools.document_parser import DocumentParserTool
 from agent_engine.tools.github_graphql import GitHubGraphQLTool
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
-from agent_engine.schemas.candidate_schema import CandidateProfileSchema, RepositoryProof
 
 
 class CandidateProfilerAgent:
     """Agent 2: Mines CV & GitHub, builds CandidateProfile, and seeds Qdrant Evidence Lake."""
 
-    def __init__(self, vector_tool: Optional[VectorRetrieverTool] = None):
+    def __init__(self, vector_tool: VectorRetrieverTool | None = None):
         self.doc_parser = DocumentParserTool()
         self.github_tool = GitHubGraphQLTool()
         self.vector_tool = vector_tool or VectorRetrieverTool()
@@ -18,16 +22,16 @@ class CandidateProfilerAgent:
         candidate_id: str,
         name: str,
         email: str,
-        cv_bytes: Optional[bytes] = None,
-        cv_text: Optional[str] = None,
-        github_username: Optional[str] = None,
+        cv_bytes: bytes | None = None,
+        cv_text: str | None = None,
+        github_username: str | None = None,
         filename: str = "",
         mime_type: str = "",
-    ) -> Dict[str, Any]:
-        evidence_items: List[Dict[str, Any]] = []
+    ) -> dict[str, Any]:
+        evidence_items: list[dict[str, Any]] = []
 
         # 1. Parse CV (PDF, Scanned Image, or raw text)
-        parsed_cv: Dict[str, Any] = {}
+        parsed_cv: dict[str, Any] = {}
         if cv_bytes:
             parsed_cv = self.doc_parser.parse_file(cv_bytes, filename=filename, mime_type=mime_type)
         elif cv_text:
@@ -54,7 +58,7 @@ class CandidateProfilerAgent:
 
         # 2. Mine GitHub repository evidence
         gh_data = {}
-        repo_proofs: List[RepositoryProof] = []
+        repo_proofs: list[RepositoryProof] = []
         if github_username:
             gh_data = self.github_tool.fetch_user_evidence(github_username)
             for repo in gh_data.get("verified_repos", []):

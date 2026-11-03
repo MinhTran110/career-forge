@@ -1,14 +1,14 @@
 from fastapi import APIRouter
+
 from app.api.v1.endpoints import (
+    applications,
     auth,
+    documents,
+    interviews,
     profile,
     radar,
-    applications,
-    interviews,
     streams,
-    documents,
 )
-
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])

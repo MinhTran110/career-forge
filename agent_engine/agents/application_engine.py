@@ -1,14 +1,15 @@
-from typing import Any, Dict, List, Optional
-from agent_engine.agents.skill_strategist import SkillStrategistAgent
-from agent_engine.agents.resume_strategist import ResumeStrategistAgent
+from typing import Any
+
 from agent_engine.agents.fact_checker import FactCheckerAgent
+from agent_engine.agents.resume_strategist import ResumeStrategistAgent
+from agent_engine.agents.skill_strategist import SkillStrategistAgent
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
 
 
 class ApplicationEngine:
     """Orchestrator for Module 3 & 4: Dual-Loop CV Generator & Fact-Checker Critic."""
 
-    def __init__(self, vector_tool: Optional[VectorRetrieverTool] = None):
+    def __init__(self, vector_tool: VectorRetrieverTool | None = None):
         self.vector_tool = vector_tool or VectorRetrieverTool()
         self.skill_strategist = SkillStrategistAgent()
         self.resume_strategist = ResumeStrategistAgent()
@@ -17,10 +18,10 @@ class ApplicationEngine:
     def process_application(
         self,
         candidate_id: str,
-        candidate_profile: Dict[str, Any],
-        target_job: Dict[str, Any],
+        candidate_profile: dict[str, Any],
+        target_job: dict[str, Any],
         max_iterations: int = 2,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Runs end-to-end dual-loop pipeline:
 
         1. Skill gap analysis & 48h Sprint Roadmap.

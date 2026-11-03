@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class ResumeStrategistAgent:
@@ -10,13 +10,13 @@ class ResumeStrategistAgent:
         "Streamlined", "Implemented", "Automated", "Deployed"
     ]
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
 
     def format_xyz_bullet(
         self,
         raw_text: str,
-        target_skills: List[str],
+        target_skills: list[str],
         default_metric: str = "30% latency reduction",
     ) -> str:
         """Transforms a freeform achievement into strict Google X-Y-Z format:
@@ -41,7 +41,7 @@ class ResumeStrategistAgent:
         words = clean_text.split()
         verb = words[0].capitalize() if words and words[0].endswith("ed") else "Engineered"
 
-        accomplishment = f"scalable backend systems with high availability"
+        accomplishment = "scalable backend systems with high availability"
         if len(words) > 3:
             accomplishment = " ".join(words[1:6]).rstrip(",.")
 
@@ -51,12 +51,12 @@ class ResumeStrategistAgent:
     def generate_tailored_resume(
         self,
         candidate_name: str,
-        candidate_skills: List[str],
-        experience_chunks: List[str],
-        metric_highlights: List[str],
-        target_job: Dict[str, Any],
-        github_username: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        candidate_skills: list[str],
+        experience_chunks: list[str],
+        metric_highlights: list[str],
+        target_job: dict[str, Any],
+        github_username: str | None = None,
+    ) -> dict[str, Any]:
         """Synthesizes complete ATS-compliant resume markdown with X-Y-Z bullets."""
         job_title = target_job.get("title", "Senior Software Engineer")
         company = target_job.get("company", "Target Tech")
@@ -87,9 +87,9 @@ class ResumeStrategistAgent:
         else:
             # Generate standard high-impact bullets tailored to target job
             bullets = [
-                f"Architected distributed microservices API with FastAPI and PostgreSQL, achieving reducing p99 response latency by 35%, by deploying asynchronous connection pooling and Redis caching.",
-                f"Scaled event streaming pipeline for data ingestion, achieving handling over 10,000 peak requests per second, by deploying Celery workers and Docker container orchestration.",
-                f"Streamlined CI/CD deployment pipelines, achieving cutting deployment cycle times by 40%, by deploying automated Pytest test suites and GitHub Actions.",
+                "Architected distributed microservices API with FastAPI and PostgreSQL, achieving reducing p99 response latency by 35%, by deploying asynchronous connection pooling and Redis caching.",
+                "Scaled event streaming pipeline for data ingestion, achieving handling over 10,000 peak requests per second, by deploying Celery workers and Docker container orchestration.",
+                "Streamlined CI/CD deployment pipelines, achieving cutting deployment cycle times by 40%, by deploying automated Pytest test suites and GitHub Actions.",
             ]
 
         # Construct full ATS Markdown
@@ -141,9 +141,9 @@ Results-driven **{job_title}** with verified expertise in **{', '.join(matched_s
 
     def run(
         self,
-        candidate_profile: Dict[str, Any],
-        target_job: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        candidate_profile: dict[str, Any],
+        target_job: dict[str, Any],
+    ) -> dict[str, Any]:
         """Main execution entrypoint."""
         candidate_name = candidate_profile.get("full_name") or candidate_profile.get("email", "Candidate").split("@")[0]
         skills = candidate_profile.get("skills", {})

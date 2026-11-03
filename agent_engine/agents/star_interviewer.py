@@ -1,13 +1,13 @@
-from typing import Any, Dict
+from typing import Any
 
 
 class StarInterviewerAgent:
     """Agent 6: Simulates interactive mock interviews and evaluates answers on STAR rubric."""
 
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None):
         self.config = config or {}
 
-    def run(self, question: str, answer_text: str) -> Dict[str, Any]:
+    def run(self, question: str, answer_text: str) -> dict[str, Any]:
         return {
             "status": "completed",
             "agent": "STAR Interviewer",

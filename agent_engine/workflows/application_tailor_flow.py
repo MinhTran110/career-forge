@@ -1,10 +1,10 @@
-from typing import Dict, Any
+from typing import Any
 
 
 class ApplicationTailorFlow:
     """Orchestrates resume tailoring, gap analysis, and anti-hallucination audit."""
 
-    def execute(self, candidate_id: str, job_id: str) -> Dict[str, Any]:
+    def execute(self, candidate_id: str, job_id: str) -> dict[str, Any]:
         return {
             "flow": "application_tailor",
             "candidate_id": candidate_id,

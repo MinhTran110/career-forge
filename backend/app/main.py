@@ -7,11 +7,14 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.router import api_router
 
 
 @asynccontextmanager
@@ -37,8 +40,6 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-from fastapi.responses import RedirectResponse
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

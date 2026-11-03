@@ -1,19 +1,19 @@
 import uuid
-from datetime import datetime, timezone
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import UTC, datetime
+
+from agent_engine.agents.application_engine import ApplicationEngine
+from agent_engine.tools.vector_retriever import VectorRetrieverTool
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.user import User
-from app.models.profile import Profile
-from app.models.job import Job
 from app.models.application import Application
+from app.models.job import Job
+from app.models.profile import Profile
+from app.models.user import User
 from app.schemas import ApplicationCreate, ApplicationResponse
-from agent_engine.agents.application_engine import ApplicationEngine
-from agent_engine.tools.vector_retriever import VectorRetrieverTool
 
 router = APIRouter()
 vector_tool = VectorRetrieverTool()
@@ -74,7 +74,7 @@ async def create_tailored_application(
     )
     existing_app = (await db.execute(app_stmt)).scalar_one_or_none()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if existing_app:
         existing_app.status = "tailored"
         existing_app.ats_score = result["ats_score"]
@@ -104,7 +104,7 @@ async def create_tailored_application(
     return app_record
 
 
-@router.get("", response_model=List[ApplicationResponse])
+@router.get("", response_model=list[ApplicationResponse])
 async def list_user_applications(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

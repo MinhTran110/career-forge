@@ -1,15 +1,16 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
 
 
 class FactCheckerAgent:
     """Agent 5 (Critic): Audits tailored resume claims against candidate ground-truth in Qdrant to eliminate hallucinations."""
 
-    def __init__(self, vector_tool: Optional[VectorRetrieverTool] = None, threshold: float = 0.35):
+    def __init__(self, vector_tool: VectorRetrieverTool | None = None, threshold: float = 0.35):
         self.vector_tool = vector_tool or VectorRetrieverTool()
         self.threshold = threshold
 
-    def audit_bullet_claim(self, candidate_id: str, bullet_text: str) -> Dict[str, Any]:
+    def audit_bullet_claim(self, candidate_id: str, bullet_text: str) -> dict[str, Any]:
         """Audits an individual resume bullet point against candidate ground truth."""
         audit_result = self.vector_tool.verify_claim(
             candidate_id=candidate_id,
@@ -27,8 +28,8 @@ class FactCheckerAgent:
     def audit_tailored_resume(
         self,
         candidate_id: str,
-        bullets: List[str],
-    ) -> Dict[str, Any]:
+        bullets: list[str],
+    ) -> dict[str, Any]:
         """Audits all bullet points of a resume and produces a grounding verdict."""
         audited_bullets = []
         hallucinations = 0
@@ -69,8 +70,8 @@ class FactCheckerAgent:
     def run(
         self,
         candidate_id: str,
-        bullets: List[str],
-    ) -> Dict[str, Any]:
+        bullets: list[str],
+    ) -> dict[str, Any]:
         """Main execution entrypoint."""
         audit_report = self.audit_tailored_resume(candidate_id=candidate_id, bullets=bullets)
         return {

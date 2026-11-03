@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 
 class WebScraperTool:
@@ -7,7 +7,7 @@ class WebScraperTool:
     def __init__(self, api_key: str = ""):
         self.api_key = api_key
 
-    def scrape_url(self, url: str) -> Dict[str, Any]:
+    def scrape_url(self, url: str) -> dict[str, Any]:
         return {
             "url": url,
             "title": "Senior AI Infrastructure Engineer Posting",

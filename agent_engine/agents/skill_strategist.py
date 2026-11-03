@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class SkillStrategistAgent:
@@ -49,15 +49,15 @@ class SkillStrategistAgent:
         },
     }
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
 
     def analyze_gap_matrix(
         self,
-        candidate_skills: List[str],
-        job_requirements: List[str],
-        tech_stack: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        candidate_skills: list[str],
+        job_requirements: list[str],
+        tech_stack: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Maps missing technical skills to actionable learning items and criticality."""
         candidate_lower = {s.lower() for s in candidate_skills}
         tech_stack_lower = {s.lower() for s in (tech_stack or [])}
@@ -93,9 +93,9 @@ class SkillStrategistAgent:
     def generate_48h_roadmap(
         self,
         target_role: str,
-        missing_skills: List[str],
-        candidate_skills: List[str],
-    ) -> Dict[str, Any]:
+        missing_skills: list[str],
+        candidate_skills: list[str],
+    ) -> dict[str, Any]:
         """Synthesizes a 48-Hour Hands-On Portfolio Sprint divided into 4 key milestones."""
         top_focus = missing_skills[:2] if missing_skills else ["Production Hardening", "System Design"]
         focus_str = " & ".join(top_focus)
@@ -162,11 +162,11 @@ class SkillStrategistAgent:
 
     def run(
         self,
-        candidate_skills: List[str],
-        job_requirements: List[str],
+        candidate_skills: list[str],
+        job_requirements: list[str],
         job_title: str = "Software Engineer",
-        tech_stack: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        tech_stack: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Main entry point: combines gap analysis and 48h sprint planning."""
         gap_analysis = self.analyze_gap_matrix(candidate_skills, job_requirements, tech_stack)
         roadmap = self.generate_48h_roadmap(
