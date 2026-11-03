@@ -36,8 +36,11 @@ class JobResponse(BaseModel):
     job_type: str = "Full-time"
     url: Optional[str] = None
     description: str
+    tier: str = "target"  # safe, target, reach
     requirements: List[str] = []
     tech_stack: List[str] = []
+    matched_skills: List[str] = []
+    missing_skills: List[str] = []
     match_score: float = 0.0
     created_at: datetime
 

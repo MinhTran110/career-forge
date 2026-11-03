@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import String, Float, JSON, DateTime, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
@@ -16,11 +16,16 @@ class Job(Base):
     url: Mapped[str] = mapped_column(String(500), nullable=True)
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
+    fingerprint: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=True)
+    tier: Mapped[str] = mapped_column(String(20), index=True, default="target")  # safe, target, reach
     requirements: Mapped[list] = mapped_column(JSON, default=list)
     tech_stack: Mapped[list] = mapped_column(JSON, default=list)
+    matched_skills: Mapped[list] = mapped_column(JSON, default=list)
+    missing_skills: Mapped[list] = mapped_column(JSON, default=list)
     match_score: Mapped[float] = mapped_column(Float, default=0.0)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     scraped_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     applications = relationship("Application", back_populates="job")
