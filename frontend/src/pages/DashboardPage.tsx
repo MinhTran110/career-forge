@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useJobRadar } from '@/hooks/use-job-radar';
+import { useAgentStream } from '@/hooks/use-agent-stream';
 import { JobCard } from '@/components/radar/JobCard';
 import { AgentStepper } from '@/components/pipeline/AgentStepper';
+import { EventLogsViewer } from '@/components/pipeline/EventLogsViewer';
 import { Job } from '@/types';
 
 export const DashboardPage: React.FC<{
@@ -9,7 +11,9 @@ export const DashboardPage: React.FC<{
   onStepClick?: (stepIndex: number) => void;
 }> = ({ onSelectJob, onStepClick }) => {
   const { jobs, loading } = useJobRadar();
-  const [activeTier, setActiveTier] = React.useState<string>('all');
+  const [activeTier, setActiveTier] = useState<string>('all');
+  const [workflowId, setWorkflowId] = useState<string>('session_init');
+  const { events, isConnected } = useAgentStream(workflowId);
 
   const filteredJobs = jobs.filter((job) => {
     if (activeTier === 'all') return true;
@@ -71,14 +75,30 @@ export const DashboardPage: React.FC<{
         </div>
 
         <div className="space-y-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
-            <h3 className="text-sm font-bold text-white">Verified Candidate Core</h3>
-            <p className="text-xs text-slate-400">Synced with GitHub: 420 commits, 12 public repos verified with 0 hallucinations.</p>
-            <div className="flex flex-wrap gap-1.5 pt-2">
-              <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-sky-300">FastAPI</span>
-              <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-sky-300">React 19</span>
-              <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-sky-300">Docker</span>
-              <span className="text-[11px] bg-slate-800 px-2 py-0.5 rounded text-sky-300">Celery</span>
+          {/* Live Multi-Agent Telemetry Stream */}
+          <EventLogsViewer
+            events={events}
+            isConnected={isConnected}
+            onTriggerSwarm={() => setWorkflowId(`swarm_${Date.now()}`)}
+          />
+
+          <div className="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 space-y-3 shadow-xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white">Verified Candidate Ground-Truth</h3>
+              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                Qdrant Indexed
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Synced with GitHub & PDF CV: 420 commits, 12 repositories verified with zero hallucinations.
+            </p>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              <span className="text-[11px] bg-slate-800/90 px-2.5 py-1 rounded-md text-sky-300 border border-slate-700/60 font-semibold">FastAPI</span>
+              <span className="text-[11px] bg-slate-800/90 px-2.5 py-1 rounded-md text-sky-300 border border-slate-700/60 font-semibold">Python</span>
+              <span className="text-[11px] bg-slate-800/90 px-2.5 py-1 rounded-md text-sky-300 border border-slate-700/60 font-semibold">React 19</span>
+              <span className="text-[11px] bg-slate-800/90 px-2.5 py-1 rounded-md text-sky-300 border border-slate-700/60 font-semibold">Docker</span>
+              <span className="text-[11px] bg-slate-800/90 px-2.5 py-1 rounded-md text-sky-300 border border-slate-700/60 font-semibold">PostgreSQL</span>
+              <span className="text-[11px] bg-slate-800/90 px-2.5 py-1 rounded-md text-sky-300 border border-slate-700/60 font-semibold">Redis</span>
             </div>
           </div>
         </div>
