@@ -79,6 +79,17 @@ class StarFeedback(BaseModel):
     recommended_answer: str | None = None
 
 
+class InterviewSessionCreate(BaseModel):
+    job_id: str | None = None
+    title: str | None = None
+    interview_type: str = "technical_and_behavioral"
+
+
+class AnswerSubmission(BaseModel):
+    question_index: int = 0
+    answer_text: str
+
+
 class InterviewSessionResponse(BaseModel):
     id: str
     user_id: str
