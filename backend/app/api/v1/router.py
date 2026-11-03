@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth,
+    profile,
     radar,
     applications,
     interviews,
@@ -11,6 +12,7 @@ from app.api.v1.endpoints import (
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+api_router.include_router(profile.router, prefix="/profile", tags=["Candidate Profiling & Evidence"])
 api_router.include_router(radar.router, prefix="/radar", tags=["Job Radar"])
 api_router.include_router(applications.router, prefix="/applications", tags=["Applications"])
 api_router.include_router(interviews.router, prefix="/interviews", tags=["Mock Interview"])
