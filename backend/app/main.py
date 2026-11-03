@@ -38,7 +38,14 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+from fastapi.responses import RedirectResponse
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.get("/", include_in_schema=False)
+async def root_redirect():
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health", tags=["Health"])
