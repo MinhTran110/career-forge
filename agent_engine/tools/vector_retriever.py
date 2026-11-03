@@ -19,7 +19,7 @@ class VectorRetrieverTool:
         
         # Connect to server if available, otherwise use embedded local disk engine, fallback to :memory: if locked
         try:
-            self.client = QdrantClient(host="localhost", port=6333, timeout=2.0)
+            self.client = QdrantClient(host="localhost", port=6333, timeout=2.0, check_compatibility=False)
             self.client.get_collections()
         except Exception:
             try:
