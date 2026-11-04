@@ -1,6 +1,9 @@
 import re
 from typing import Any
 
+from agent_engine.core.model_gateway import ModelGateway, model_gateway as default_model_gateway
+from agent_engine.core.tool_registry import AgentRole, ToolRegistry, tool_registry as default_tool_registry
+
 
 class ResumeStrategistAgent:
     """Agent 4: Synthesizes ATS-tailored resume bullets strictly formatted using Google's X-Y-Z formula."""
@@ -10,8 +13,16 @@ class ResumeStrategistAgent:
         "Streamlined", "Implemented", "Automated", "Deployed"
     ]
 
-    def __init__(self, config: dict[str, Any] | None = None):
+    def __init__(
+        self,
+        config: dict[str, Any] | None = None,
+        model_gateway: ModelGateway | None = None,
+        tool_registry: ToolRegistry | None = None,
+    ):
         self.config = config or {}
+        self.model_gateway = model_gateway or default_model_gateway
+        self.tool_registry = tool_registry or default_tool_registry
+        self.role = AgentRole.RESUME_STRATEGIST
 
     def format_xyz_bullet(
         self,

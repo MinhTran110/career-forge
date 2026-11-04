@@ -65,6 +65,7 @@ async def create_tailored_application(
         candidate_id=current_user.id,
         candidate_profile=candidate_data,
         target_job=job_data,
+        workflow_id=f"wf_{job.id}",
     )
 
     # 4. Check if application already exists for this user and job

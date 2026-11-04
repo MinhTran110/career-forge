@@ -1,12 +1,23 @@
 import re
 from typing import Any, Dict, List, Optional
 
+from agent_engine.core.model_gateway import ModelGateway, model_gateway as default_model_gateway
+from agent_engine.core.tool_registry import AgentRole, ToolRegistry, tool_registry as default_tool_registry
+
 
 class StarInterviewerAgent:
     """Agent 6: Simulates realistic technical interviews and evaluates responses using the 4-dimension STAR rubric."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        model_gateway: Optional[ModelGateway] = None,
+        tool_registry: Optional[ToolRegistry] = None,
+    ):
         self.config = config or {}
+        self.model_gateway = model_gateway or default_model_gateway
+        self.tool_registry = tool_registry or default_tool_registry
+        self.role = AgentRole.STAR_INTERVIEWER
 
     def generate_interview_questions(
         self,

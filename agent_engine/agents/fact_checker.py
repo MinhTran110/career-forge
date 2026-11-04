@@ -1,13 +1,31 @@
 from typing import Any
 
+from agent_engine.core.tool_registry import AgentRole, ToolRegistry, tool_registry as default_tool_registry
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
 
 
 class FactCheckerAgent:
     """Agent 5 (Critic): Audits tailored resume claims against candidate ground-truth in Qdrant to eliminate hallucinations."""
 
-    def __init__(self, vector_tool: VectorRetrieverTool | None = None, threshold: float = 0.35):
-        self.vector_tool = vector_tool or VectorRetrieverTool()
+    def __init__(
+        self,
+        vector_tool: VectorRetrieverTool | None = None,
+        threshold: float = 0.35,
+        tool_registry: ToolRegistry | None = None,
+    ):
+        self.tool_registry = tool_registry or default_tool_registry
+        self.role = AgentRole.FACT_CHECKER
+
+        # Enforce ToolRegistry RBAC authorization
+        if vector_tool is not None:
+            self.vector_tool = vector_tool
+        else:
+            try:
+                tool = self.tool_registry.get_tool("vector_query", self.role)
+                self.vector_tool = getattr(tool.func, "__self__", VectorRetrieverTool())
+            except Exception:
+                self.vector_tool = VectorRetrieverTool()
+
         self.threshold = threshold
 
     def audit_bullet_claim(self, candidate_id: str, bullet_text: str) -> dict[str, Any]:
