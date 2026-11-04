@@ -51,18 +51,43 @@ export interface AgentEvent {
 
 export interface CandidateProfile {
   user_id: string;
+  profile_id?: string;
   email: string;
   full_name: string;
   headline: string;
   github_username: string;
   verified_skills: string[];
   github_metrics: {
+    username?: string;
     total_commits?: number;
+    total_repos?: number;
     repositories_analyzed?: number;
     top_languages?: string[];
   };
-  verified_repos: string[];
+  verified_repos: any[];
   qdrant_indexed: boolean;
+  cv_metadata?: {
+    filename?: string;
+    file_size?: number;
+    mime_type?: string;
+    uploaded_at?: string;
+    indexed_chunks_count?: number;
+  };
+  storage_info?: {
+    rdbms_table?: string;
+    rdbms_record_id?: string;
+    vector_collection?: string;
+    vector_count?: number;
+    vector_dimension?: number;
+    distance_metric?: string;
+  };
+  evidence_chunks?: {
+    point_id?: string;
+    text: string;
+    source: string;
+    category: string;
+    score?: number;
+  }[];
 }
 
 export interface User {
@@ -70,4 +95,5 @@ export interface User {
   email: string;
   full_name?: string;
 }
+
 

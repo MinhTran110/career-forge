@@ -115,6 +115,36 @@ class VectorRetrieverTool:
             for res in results.points
         ]
 
+    def get_all_candidate_evidence(self, candidate_id: str, limit: int = 50) -> list[dict[str, Any]]:
+        """Retrieves all indexed atomic evidence chunks for a specific candidate from Qdrant."""
+        filter_condition = qmodels.Filter(
+            must=[
+                qmodels.FieldCondition(
+                    key="candidate_id",
+                    match=qmodels.MatchValue(value=candidate_id),
+                )
+            ]
+        )
+        try:
+            res, _ = self.client.scroll(
+                collection_name=self.collection_name,
+                scroll_filter=filter_condition,
+                limit=limit,
+                with_payload=True,
+            )
+            return [
+                {
+                    "point_id": str(p.id),
+                    "text": p.payload.get("text", ""),
+                    "source": p.payload.get("source", "cv"),
+                    "category": p.payload.get("category", "experience"),
+                    "verified": p.payload.get("verified", True),
+                }
+                for p in res
+            ]
+        except Exception:
+            return []
+
     def verify_claim(self, candidate_id: str, claim: str, threshold: float = 0.5) -> dict[str, Any]:
         """Audits a resume bullet point against the candidate's ground-truth lake."""
         evidences = self.retrieve_evidence(candidate_id, claim, limit=3)
@@ -127,3 +157,4 @@ class VectorRetrieverTool:
             "confidence_score": top_score,
             "grounding_evidence": evidences[0] if evidences else None,
         }
+
