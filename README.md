@@ -269,8 +269,3 @@ npm --prefix frontend run build
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
-
-<p align="center">
-  <b>Built with ❤️ by the CareerForge Core Engineering Team</b><br/>
-  <i>Empowering engineers with autonomous, truthful AI career acceleration.</i>
-</p>
