@@ -57,3 +57,31 @@ async def test_get_my_profile_and_custom_jd_endpoints():
         assert job_data["tier"] in ["safe", "target", "reach"]
         assert job_data["match_score"] > 50.0
         assert "FastAPI" in job_data["matched_skills"] or "Python" in job_data["matched_skills"]
+
+        # 4. Test physical file upload & storage persistence
+        import io
+        from pypdf import PdfWriter
+        pdf_writer = PdfWriter()
+        pdf_writer.add_blank_page(width=595, height=842)
+        pdf_stream = io.BytesIO()
+        pdf_writer.write(pdf_stream)
+        valid_pdf_bytes = pdf_stream.getvalue()
+
+        files = {
+            "cv_file": ("candidate_cv.pdf", valid_pdf_bytes, "application/pdf")
+        }
+        upload_res = await client.post(
+            "/api/v1/profile/setup",
+            headers=headers,
+            data={"github_username": "MinhTran110"},
+            files=files,
+        )
+        assert upload_res.status_code == 200, upload_res.text
+        upload_data = upload_res.json()
+        assert upload_data["status"] == "success"
+        assert upload_data["cv_metadata"]["filename"] == "candidate_cv.pdf"
+        assert upload_data["cv_metadata"]["file_size"] > 0
+        from pathlib import Path
+        saved_path = Path(upload_data["cv_metadata"]["file_path"])
+        assert saved_path.exists()
+        assert saved_path.read_bytes() == valid_pdf_bytes

@@ -1,4 +1,5 @@
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 from agent_engine.agents.candidate_profiler import CandidateProfilerAgent
@@ -34,7 +35,8 @@ async def setup_candidate_profile(
         mime_type = cv_file.content_type or "application/pdf"
 
         # Persist the physical CV file to backend/uploads/cvs/<user_id>/
-        upload_dir = Path("backend/uploads/cvs") / current_user.id
+        base_upload_dir = Path(__file__).resolve().parents[4] / "uploads" / "cvs"
+        upload_dir = base_upload_dir / current_user.id
         upload_dir.mkdir(parents=True, exist_ok=True)
         disk_file = upload_dir / filename
         disk_file.write_bytes(cv_bytes)
