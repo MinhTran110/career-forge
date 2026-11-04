@@ -12,8 +12,8 @@ export const CandidateProfileCard: React.FC<CandidateProfileCardProps> = ({ prof
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [showInspector, setShowInspector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,124 +150,8 @@ export const CandidateProfileCard: React.FC<CandidateProfileCardProps> = ({ prof
           </p>
         )}
       </div>
-
-      {/* Storage & Metadata Inspector Trigger */}
-      <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-        <div className="text-[11px] text-slate-400">
-          <span className="font-semibold text-slate-300">Persistence Layer:</span> PostgreSQL (RDBMS) + Qdrant (Vector DB)
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowInspector(true)}
-          className="px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-sky-400 hover:text-sky-300 text-xs font-bold border border-slate-800 hover:border-sky-500/40 transition-all cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <span>🔍</span>
-          <span>Inspect Stored Metadata & Vectors</span>
-        </button>
-      </div>
-
-      {/* Metadata & Evidence Lake Modal */}
-      {showInspector && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>🗄️</span>
-                  <span>Stored Candidate Metadata & Vector Evidence Lake</span>
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Verifiable persistence across PostgreSQL and Qdrant Vector DB
-                </p>
-              </div>
-              <button
-                onClick={() => setShowInspector(false)}
-                className="text-slate-400 hover:text-white text-sm font-bold p-1 rounded-lg hover:bg-slate-800 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-xs">
-              {/* Layer 1: PostgreSQL Record */}
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                <span className="font-bold text-sky-400 uppercase tracking-wider block flex items-center gap-1.5">
-                  <span>🐘</span> Layer 1: PostgreSQL Relational Record (Table: profiles)
-                </span>
-                <div className="grid grid-cols-2 gap-2 text-slate-300 font-mono text-[11px]">
-                  <div>Profile Record ID: <span className="text-white font-bold">{profile?.profile_id || 'prof_default'}</span></div>
-                  <div>User ID: <span className="text-white font-bold">{profile?.user_id || 'usr_current'}</span></div>
-                  <div>GitHub Account: <span className="text-white font-bold">{profile?.github_username || 'None'}</span></div>
-                  <div>Analyzed Repos: <span className="text-white font-bold">{profile?.github_metrics?.total_repos || profile?.github_metrics?.repositories_analyzed || 0} repos</span></div>
-                </div>
-              </div>
-
-              {/* Layer 2: File Ingestion Metadata */}
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-                <span className="font-bold text-indigo-400 uppercase tracking-wider block flex items-center gap-1.5">
-                  <span>📄</span> Layer 2: Uploaded File Metadata
-                </span>
-                <div className="grid grid-cols-2 gap-2 text-slate-300 font-mono text-[11px]">
-                  <div>File Name: <span className="text-white font-bold">{profile?.cv_metadata?.filename || 'CV_Candidate.pdf'}</span></div>
-                  <div>File Size: <span className="text-white font-bold">{profile?.cv_metadata?.file_size ? `${(profile.cv_metadata.file_size / 1024).toFixed(1)} KB` : '45.2 KB'}</span></div>
-                  <div>MIME Type: <span className="text-white font-bold">{profile?.cv_metadata?.mime_type || 'application/pdf'}</span></div>
-                  <div>Uploaded At: <span className="text-white font-bold">{profile?.cv_metadata?.uploaded_at ? new Date(profile.cv_metadata.uploaded_at).toLocaleString() : 'Recent'}</span></div>
-                </div>
-              </div>
-
-              {/* Layer 3: Qdrant Vector Lake Chunks */}
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>🛡️</span> Layer 3: Qdrant Vector Lake (Collection: candidate_evidence)
-                  </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20">
-                    128-dim • Cosine Similarity
-                  </span>
-                </div>
-
-                <p className="text-[11px] text-slate-400">
-                  These are the exact atomic evidence chunks extracted and embedded to prevent AI hallucinations:
-                </p>
-
-                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {(profile?.evidence_chunks && profile.evidence_chunks.length > 0
-                    ? profile.evidence_chunks
-                    : [
-                        { text: "[Work Experience]: Science, Python Programming", source: "cv_document" },
-                        { text: "[General Profile]: Sử dụng Python, Pandas, Scikit-learn", source: "cv_document" },
-                        { text: "[General Profile]: Triển khai bằng Python (Pandas, Scikit-learn)", source: "cv_document" },
-                      ]
-                  ).map((chunk, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2.5 rounded-lg bg-slate-900 border border-slate-800/80 text-[11px] text-slate-300 space-y-1"
-                    >
-                      <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono">
-                        <span>Chunk #{idx + 1}</span>
-                        <span className="text-sky-400 uppercase">{chunk.source}</span>
-                      </div>
-                      <p className="font-sans leading-relaxed text-slate-200">"{chunk.text}"</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-2 border-t border-slate-800">
-              <button
-                type="button"
-                onClick={() => setShowInspector(false)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all cursor-pointer"
-              >
-                Close Inspector
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
 

@@ -1,4 +1,6 @@
 
+from pathlib import Path
+
 from agent_engine.agents.candidate_profiler import CandidateProfilerAgent
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
 from fastapi import APIRouter, Depends, File, Form, UploadFile
@@ -25,12 +27,21 @@ async def setup_candidate_profile(
     cv_bytes = None
     filename = ""
     mime_type = ""
+    saved_file_path = ""
     if cv_file:
         cv_bytes = await cv_file.read()
-        filename = cv_file.filename or ""
-        mime_type = cv_file.content_type or ""
+        filename = cv_file.filename or "Uploaded_Resume.pdf"
+        mime_type = cv_file.content_type or "application/pdf"
+
+        # Persist the physical CV file to backend/uploads/cvs/<user_id>/
+        upload_dir = Path("backend/uploads/cvs") / current_user.id
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        disk_file = upload_dir / filename
+        disk_file.write_bytes(cv_bytes)
+        saved_file_path = str(disk_file)
 
     # Run profiling and grounding pipeline
+
     result = profiler_agent.profile_and_ground(
         candidate_id=current_user.id,
         name=current_user.full_name or "Engineer",
@@ -60,9 +71,11 @@ async def setup_candidate_profile(
             "filename": filename or "Uploaded_Resume.pdf",
             "file_size": len(cv_bytes) if cv_bytes else 0,
             "mime_type": mime_type or "application/pdf",
+            "file_path": saved_file_path,
             "uploaded_at": datetime.now(UTC).isoformat(),
             "indexed_chunks_count": result["indexed_evidence_count"],
         },
+
     }
     profile_record.verified_experience = result["profile"]["verified_repos"]
     profile_record.github_metrics = result["github_metrics"]
