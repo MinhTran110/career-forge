@@ -8,11 +8,13 @@ import { CandidateProfileCard } from '@/components/profile/CandidateProfileCard'
 import { CustomJdModal } from '@/components/radar/CustomJdModal';
 import { getMyProfile, triggerRadarScan } from '@/services/api';
 import { CandidateProfile, Job } from '@/types';
+import { useLanguage } from '@/context/LanguageContext';
 
 export const DashboardPage: React.FC<{
   onSelectJob: (job: Job) => void;
   onStepClick?: (stepIndex: number) => void;
 }> = ({ onSelectJob, onStepClick }) => {
+  const { t } = useLanguage();
   const { jobs, loading, setJobs } = useJobRadar();
   const [activeTier, setActiveTier] = useState<string>('all');
   const [workflowId, setWorkflowId] = useState<string>('session_init');
@@ -76,11 +78,11 @@ export const DashboardPage: React.FC<{
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
           <div className="inline-block text-xs font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 border border-sky-500/30 px-2.5 py-1 rounded-full mb-2">
-            Bước 1: Hồ sơ năng lực & Danh sách việc làm phù hợp
+            {t('dash.step_badge')}
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Việc Làm Phù Hợp Với Hồ Sơ Của Bạn</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">{t('dash.title')}</h1>
           <p className="text-sm text-slate-400 mt-1">
-            Tự động đối chiếu kỹ năng thực tế từ CV và GitHub của bạn để phân loại cơ hội việc làm theo 3 mức độ
+            {t('dash.desc')}
           </p>
         </div>
 
@@ -91,7 +93,7 @@ export const DashboardPage: React.FC<{
             className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-500/60 text-sky-300 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
           >
             <span>📋</span>
-            <span>Thêm tin tuyển dụng (JD)</span>
+            <span>{t('dash.add_jd')}</span>
           </button>
 
           <button
@@ -100,13 +102,13 @@ export const DashboardPage: React.FC<{
             className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-sky-500/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
           >
             <span>{isScanning ? '↻' : '🔄'}</span>
-            <span>{isScanning ? 'Đang tìm kiếm...' : 'Quét việc làm mới'}</span>
+            <span>{isScanning ? t('dash.scanning') : t('dash.rescan')}</span>
           </button>
         </div>
       </div>
 
       {/* Stepper Navigation */}
-      <AgentStepper currentStepIndex={1} onStepClick={onStepClick} />
+      <AgentStepper currentStepIndex={1} onNavigateToStep={onStepClick} />
 
       {/* Candidate Profiler & Ground-Truth Card */}
       <CandidateProfileCard profile={profile} onProfileUpdated={handleProfileUpdated} />
@@ -117,21 +119,23 @@ export const DashboardPage: React.FC<{
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
               <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <span>Vị trí gợi ý cho bạn</span>
+                <span>{t('dash.recommended')}</span>
                 <span className="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700 font-normal">
-                  Cập nhật liên tục
+                  {t('dash.live_updates')}
                 </span>
               </h2>
-              <span className="text-xs text-sky-400 font-medium">Tìm thấy {filteredJobs.length} vị trí phù hợp</span>
+              <span className="text-xs text-sky-400 font-medium">
+                {filteredJobs.length} {t('dash.positions_found')}
+              </span>
             </div>
 
             {/* Tier Filters */}
             <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs font-semibold">
               {[
-                { id: 'all', label: 'Tất cả' },
-                { id: 'safe', label: 'Vừa sức' },
-                { id: 'target', label: 'Mục tiêu' },
-                { id: 'reach', label: 'Thử thách' },
+                { id: 'all', label: t('dash.tier_all') },
+                { id: 'safe', label: t('dash.tier_safe') },
+                { id: 'target', label: t('dash.tier_target') },
+                { id: 'reach', label: t('dash.tier_reach') },
               ].map(({ id, label }) => (
                 <button
                   key={id}

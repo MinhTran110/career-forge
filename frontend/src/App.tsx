@@ -5,13 +5,15 @@ import { ResumeEditorPage } from '@/pages/ResumeEditorPage';
 import { MockInterviewPage } from '@/pages/MockInterviewPage';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { getCurrentUser } from '@/services/api';
+import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { Job, User } from '@/types';
 
-export const App: React.FC = () => {
+const MainApp: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'detail' | 'editor' | 'interview'>('dashboard');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   const fetchUser = () => {
     getCurrentUser()
@@ -58,7 +60,7 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Navigation & User Session */}
+        {/* Tab Navigation & User Controls */}
         <div className="flex items-center gap-3">
           <nav className="flex items-center gap-1.5 text-xs font-semibold">
             <button
@@ -69,7 +71,7 @@ export const App: React.FC = () => {
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              1. Việc làm phù hợp
+              {t('nav.jobs')}
             </button>
 
             <button
@@ -80,7 +82,7 @@ export const App: React.FC = () => {
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              2. Đánh giá & Bổ sung kỹ năng
+              {t('nav.skills')}
             </button>
 
             <button
@@ -91,7 +93,7 @@ export const App: React.FC = () => {
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              3. Tối ưu hóa CV
+              {t('nav.resume')}
             </button>
 
             <button
@@ -102,15 +104,41 @@ export const App: React.FC = () => {
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              <span>4. Luyện phỏng vấn</span>
+              <span>{t('nav.interview')}</span>
               <span className="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-normal">
-                Tùy chọn
+                {t('nav.optional')}
               </span>
             </button>
           </nav>
 
+          {/* Language Switcher (VI / EN Toggle) */}
+          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5 text-[11px] font-bold">
+            <button
+              onClick={() => setLanguage('vi')}
+              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                language === 'vi'
+                  ? 'bg-sky-500 text-slate-950 font-black shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Chuyển sang Tiếng Việt"
+            >
+              🇻🇳 VI
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                language === 'en'
+                  ? 'bg-sky-500 text-slate-950 font-black shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+              title="Switch to English"
+            >
+              🇬🇧 EN
+            </button>
+          </div>
+
           {/* User Account Button */}
-          <div className="pl-2 border-l border-slate-800">
+          <div className="pl-1 border-l border-slate-800">
             <button
               onClick={() => setIsAuthOpen(true)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-200 transition-all cursor-pointer shadow-sm active:scale-95"
@@ -119,7 +147,7 @@ export const App: React.FC = () => {
                 {currentUser?.full_name ? currentUser.full_name[0].toUpperCase() : '👤'}
               </div>
               <span className="hidden md:inline-block max-w-[120px] truncate">
-                {currentUser?.full_name || 'Sign In'}
+                {currentUser?.full_name || t('nav.sign_in')}
               </span>
             </button>
           </div>
@@ -184,5 +212,12 @@ export const App: React.FC = () => {
   );
 };
 
-export default App;
+export const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <MainApp />
+    </LanguageProvider>
+  );
+};
 
+export default App;
