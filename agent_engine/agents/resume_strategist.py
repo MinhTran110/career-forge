@@ -13,6 +13,18 @@ class ResumeStrategistAgent:
         "Streamlined", "Implemented", "Automated", "Deployed"
     ]
 
+    GOOGLE_XYZ_SYSTEM_PROMPT = (
+        "You are an elite ATS Resume Strategist and Executive Career Coach.\n"
+        "Your mission is to synthesize high-impact, ATS-optimized resume bullet points using Google's strict X-Y-Z formula:\n"
+        "'Accomplished [X] as measured by [Y], by doing [Z]'\n\n"
+        "Guidelines:\n"
+        "1. Every bullet must start with a powerful past-tense action verb (Architected, Engineered, Optimized, Scaled, Streamlined).\n"
+        "2. [X] must be a concrete business or technical accomplishment.\n"
+        "3. [Y] must contain hard quantitative metrics (% latency reduction, RPS handled, uptime, cost reduction).\n"
+        "4. [Z] must specify the exact technologies, tools, and architectural patterns deployed from the candidate's verified skills.\n"
+        "5. Strictly adhere to verified ground truth. Do not invent unverified technologies or claim impossible achievements."
+    )
+
     def __init__(
         self,
         config: dict[str, Any] | None = None,
@@ -90,18 +102,48 @@ class ResumeStrategistAgent:
             "maintaining 99.99% service uptime across distributed nodes",
         ]
 
-        if experience_chunks:
-            for i, chunk in enumerate(experience_chunks[:4]):
-                m = metric_highlights[i] if i < len(metric_highlights) else default_metrics[i % len(default_metrics)]
-                xyz = self.format_xyz_bullet(chunk, matched_skills, default_metric=m)
-                bullets.append(xyz)
-        else:
-            # Generate standard high-impact bullets tailored to target job
-            bullets = [
-                "Architected distributed microservices API with FastAPI and PostgreSQL, achieving reducing p99 response latency by 35%, by deploying asynchronous connection pooling and Redis caching.",
-                "Scaled event streaming pipeline for data ingestion, achieving handling over 10,000 peak requests per second, by deploying Celery workers and Docker container orchestration.",
-                "Streamlined CI/CD deployment pipelines, achieving cutting deployment cycle times by 40%, by deploying automated Pytest test suites and GitHub Actions.",
-            ]
+        # If external LLM key is configured (e.g. Google AI Studio), attempt live LLM generation
+        if self.model_gateway.api_key:
+            try:
+                import json
+                llm_prompt = (
+                    f"Candidate Name: {candidate_name}\n"
+                    f"Verified Skills: {', '.join(candidate_skills)}\n"
+                    f"Target Role: {job_title} at {company}\n"
+                    f"Job Requirements: {', '.join(all_job_skills)}\n"
+                    f"Experience Highlights: {json.dumps(experience_chunks[:4])}\n"
+                    f"Metrics: {json.dumps(metric_highlights)}\n\n"
+                    "Generate exactly 3 to 4 ATS-tailored experience bullets strictly formatted in Google X-Y-Z formula: "
+                    "'Accomplished [X] as measured by [Y], by doing [Z]'. Return only bullet items prefixed with '-'."
+                )
+                raw_llm = self.model_gateway.generate_text_sync(
+                    llm_prompt,
+                    system_prompt=self.GOOGLE_XYZ_SYSTEM_PROMPT,
+                    temperature=0.3,
+                )
+                extracted_bullets = [
+                    re.sub(r'^[-\*\s•\d\.]+', '', line).strip()
+                    for line in raw_llm.split('\n')
+                    if line.strip() and len(line.strip()) > 30 and not line.strip().startswith('#')
+                ]
+                if extracted_bullets and len(extracted_bullets) >= 2:
+                    bullets = extracted_bullets[:4]
+            except Exception:
+                pass
+
+        if not bullets:
+            if experience_chunks:
+                for i, chunk in enumerate(experience_chunks[:4]):
+                    m = metric_highlights[i] if i < len(metric_highlights) else default_metrics[i % len(default_metrics)]
+                    xyz = self.format_xyz_bullet(chunk, matched_skills, default_metric=m)
+                    bullets.append(xyz)
+            else:
+                # Generate standard high-impact bullets tailored to target job
+                bullets = [
+                    "Architected distributed microservices API with FastAPI and PostgreSQL, achieving reducing p99 response latency by 35%, by deploying asynchronous connection pooling and Redis caching.",
+                    "Scaled event streaming pipeline for data ingestion, achieving handling over 10,000 peak requests per second, by deploying Celery workers and Docker container orchestration.",
+                    "Streamlined CI/CD deployment pipelines, achieving cutting deployment cycle times by 40%, by deploying automated Pytest test suites and GitHub Actions.",
+                ]
 
         # Construct full ATS Markdown
         gh_line = f"**GitHub:** [github.com/{github_username}](https://github.com/{github_username}) | " if github_username else ""

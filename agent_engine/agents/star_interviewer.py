@@ -8,6 +8,15 @@ from agent_engine.core.tool_registry import AgentRole, ToolRegistry, tool_regist
 class StarInterviewerAgent:
     """Agent 6: Simulates realistic technical interviews and evaluates responses using the 4-dimension STAR rubric."""
 
+    STAR_EVAL_SYSTEM_PROMPT = (
+        "You are an elite Principal Engineering Leader and STAR Interview Coach.\n"
+        "Your mission is to evaluate candidate responses across the 4 STAR pillars:\n"
+        "- Situation (0-100): Clear context, engineering scale, and project scope.\n"
+        "- Task (0-100): Concrete problem definition, bottlenecks, or constraints.\n"
+        "- Action (0-100): Individual technical contributions, tradeoffs, algorithms, and architectures.\n"
+        "- Result (0-100): Measurable metrics, p99 latency, cost savings, throughput.\n"
+    )
+
     def __init__(
         self,
         config: Optional[Dict[str, Any]] = None,
@@ -118,6 +127,24 @@ class StarInterviewerAgent:
             "Action: I architected asynchronous connection pooling with Redis caching and FastAPI background workers, implementing circuit breaker patterns for database queries. "
             "Result: Completely eliminated database connection dropouts, reduced p99 latency by 42%, and saved $18,000 in monthly database provisioning costs."
         )
+
+        # If external LLM key is configured (e.g. Google AI Studio), attempt live LLM feedback enhancement
+        if self.model_gateway.api_key:
+            try:
+                llm_prompt = (
+                    f"Question: {question}\n"
+                    f"Candidate Response: {answer_text}\n"
+                    "Evaluate this answer. Provide 1 concise strength, 1 specific improvement, and a 2-sentence polished model answer."
+                )
+                llm_raw = self.model_gateway.generate_text_sync(
+                    llm_prompt,
+                    system_prompt=self.STAR_EVAL_SYSTEM_PROMPT,
+                    temperature=0.3,
+                )
+                if len(llm_raw.strip()) > 40:
+                    recommended_answer = llm_raw.strip()
+            except Exception:
+                pass
 
         return {
             "situation_score": round(situation_score, 1),
