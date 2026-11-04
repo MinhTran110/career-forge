@@ -19,7 +19,7 @@ export interface SkillGapItem {
   skill: string;
   candidate_level: number; // 0 - 100
   required_level: number;  // 0 - 100
-  status: 'matched' | 'moderate' | 'critical_gap';
+  status: 'matched' | 'moderate' | 'critical_gap' | 'bridged';
 }
 
 export interface MiniProjectPlan {

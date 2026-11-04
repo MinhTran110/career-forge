@@ -44,6 +44,7 @@ pnpm-debug.log*
 qdrant_storage/
 minio_data/
 postgres_data/
+backend/uploads/
 
 # IDE & OS
 .idea/
