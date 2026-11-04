@@ -35,7 +35,10 @@ class Settings(BaseSettings):
     MINIO_BUCKET_NAME: str = "careerforge-resumes"
     MINIO_SECURE: bool = False
 
-    # AI Model Keys
+    # AI Model Keys (Google AI Studio as primary zero-cost provider)
+    MODEL_PROVIDER: str = "gemini"
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-1.5-flash"
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
     FIRECRAWL_API_KEY: str = ""

@@ -120,9 +120,9 @@ class AnthropicClient(BaseLLMClient):
 
 
 class GeminiClient(BaseLLMClient):
-    """Google Gemini REST API client."""
+    """Google AI Studio (Gemini) REST API client - Primary zero-cost provider."""
 
-    def __init__(self, api_key: str, model: str = "gemini-1.5-pro"):
+    def __init__(self, api_key: str, model: str = "gemini-1.5-flash"):
         self.api_key = api_key
         self.model = model
 
@@ -191,33 +191,33 @@ class ModelGateway:
         base_url: str | None = None,
         model_name: str | None = None,
     ):
-        self.provider = (provider or os.getenv("MODEL_PROVIDER") or "").lower()
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY") or os.getenv("GEMINI_API_KEY") or ""
+        self.provider = (provider or os.getenv("MODEL_PROVIDER") or "gemini").lower()
+        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY") or ""
         self.base_url = base_url or os.getenv("LOCAL_LLM_URL") or "http://localhost:8000/v1"
-        self.model_name = model_name
+        self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
         self.primary_client = self._resolve_client()
         self.fallback_client = FallbackHeuristicClient()
 
     def _resolve_client(self) -> BaseLLMClient:
-        # Check Anthropic
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        if self.provider == "anthropic" or (not self.provider and anthropic_key):
-            return AnthropicClient(api_key=anthropic_key or self.api_key, model=self.model_name or "claude-3-5-sonnet-20241022")
+        # 1. Primary: Google AI Studio (Gemini) - Generous Free Tier
+        gemini_key = os.getenv("GEMINI_API_KEY") or (self.api_key if self.provider == "gemini" else "")
+        if gemini_key:
+            return GeminiClient(api_key=gemini_key, model=self.model_name or "gemini-1.5-flash")
 
-        # Check Gemini
-        gemini_key = os.getenv("GEMINI_API_KEY")
-        if self.provider == "gemini" or (not self.provider and gemini_key):
-            return GeminiClient(api_key=gemini_key or self.api_key, model=self.model_name or "gemini-1.5-pro")
-
-        # Check Local vLLM / Ollama
+        # 2. Local vLLM / Ollama (Self-hosted Zero-Cost GPU)
         if self.provider in ("local", "vllm", "ollama"):
             return OpenAIClient(api_key=self.api_key or "local-token", base_url=self.base_url, model=self.model_name or "mistral-7b-instruct")
 
-        # Check OpenAI
+        # 3. Anthropic Claude
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        if (self.provider == "anthropic" and anthropic_key) or (not self.provider and anthropic_key):
+            return AnthropicClient(api_key=anthropic_key, model=self.model_name or "claude-3-5-sonnet-20241022")
+
+        # 4. OpenAI
         openai_key = os.getenv("OPENAI_API_KEY")
-        if self.provider == "openai" or (not self.provider and openai_key):
-            return OpenAIClient(api_key=openai_key or self.api_key, model=self.model_name or "gpt-4o-mini")
+        if (self.provider == "openai" and openai_key) or (not self.provider and openai_key):
+            return OpenAIClient(api_key=openai_key, model=self.model_name or "gpt-4o-mini")
 
         # Default to Fallback Heuristic
         logger.info("No external LLM credentials configured. ModelGateway active in Fallback Heuristic mode.")
