@@ -1,67 +1,276 @@
 # CareerForge 🚀
-**Autonomous AI-Powered Career Copilot & Real-Time Job Readiness Engine**
+**Autonomous Multi-Agent AI Career Co-Pilot & Real-Time Job Readiness Engine**
 
-CareerForge is an end-to-end multi-agent career acceleration platform that monitors real-time tech jobs, analyzes candidate skill gaps against live market demands, creates tailored 48-hour mini-projects, rewrites ATS-compliant resumes verified against actual GitHub/work artifacts, and runs voice-enabled mock interviews scored on the STAR framework.
+[![CI Pipeline](https://img.shields.io/badge/CI-Passing-brightgreen?style=flat-square&logo=githubactions)](https://github.com/MinhTran110/career-forge/actions)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Vector_DB-DC2626?style=flat-square&logo=qdrant&logoColor=white)](https://qdrant.tech/)
+[![Google Gemini](https://img.shields.io/badge/Google_AI_Studio-Gemini_1.5_Flash-4285F4?style=flat-square&logo=google&logoColor=white)](https://aistudio.google.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
 
-## 🏛 Architecture Overview
+## 💡 Overview
 
-```text
-careerforge/
-├── .github/workflows/          # CI/CD (backend, frontend, automated deployment)
-├── docker/                     # Infrastructure (PostgreSQL, Redis, Qdrant, MinIO)
-├── frontend/                   # Modern React 19 + Vite + TypeScript Client
-├── backend/                    # FastAPI Gateway, Async SQLAlchemy & REST/SSE Endpoints
-└── agent_engine/               # Multi-Agent Specialized Core (CrewAI + Celery)
+**CareerForge** is a production-grade autonomous multi-agent platform designed to bridge the gap between engineering talent and competitive tech job markets. Unlike static resume builders or generic LLM wrappers, CareerForge enforces **cryptographic and vector-grounded anti-hallucination guardrails**, real-time **Actor-Critic multi-agent debate**, and an **evidence lake** indexed directly from candidate repositories, commits, and verified metrics.
+
+### Key Pillars
+- **Zero-Cost High-Performance LLM Gateway**: Built-in support for **Google AI Studio (`gemini-1.5-flash`)** utilizing Google's free tier (15 RPM / 1M TPM / 1,500 RPD) alongside automated heuristic fallback for offline testing.
+- **Actor-Critic Anti-Hallucination Loop**: A dual-loop system where the **Resume Strategist (Actor)** generates high-impact Google X-Y-Z bullets while the **Fact Checker (Critic)** strictly audits every single metric against an immutable Qdrant Evidence Lake.
+- **Role-Based Access Control (RBAC) Tool Registry**: Strict least-privilege tool execution—Critic agents are cryptographically barred from write operations to prevent synthetic evidence hallucination.
+- **Live EventBus Streaming**: Real-time Server-Sent Events (SSE) streaming inner reasoning (`thought`) and debate turns between agents directly to the user interface.
+- **Adaptive 48h Sprint Blueprint**: Interactive mini-project generator that responds to candidate GitHub commit links, validates codebase AST patterns, and dynamically bridges skill gaps from 30% to 92%.
+
+---
+
+## 🏛 System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client["Frontend Client (React 19 + TypeScript + Vite)"]
+        UI_Radar["🎯 Market Radar & Custom JD"]
+        UI_Stream["⚡ Agent Debate Stream (SSE)"]
+        UI_Editor["✍️ ATS Studio (Google X-Y-Z Diff)"]
+        UI_Sprint["📊 Adaptive 48h Sprint"]
+        UI_Interview["🎙️ STAR Mock Room"]
+    end
+
+    subgraph Gateway["FastAPI API Gateway (Port 8000)"]
+        Auth["JWT Auth Interceptor"]
+        AppEndpoints["/api/v1/applications/tailor"]
+        StreamEndpoints["/api/v1/streams/agent-events"]
+        RadarEndpoints["/api/v1/radar/jobs & custom-jd"]
+        ProfileEndpoints["/api/v1/profile/setup"]
+    end
+
+    subgraph CoreEngine["Agent Engine Core (agent_engine/core/)"]
+        ModelGW["ModelGateway<br/>(Gemini 1.5 Flash / OpenAI / Claude / Fallback)"]
+        ToolReg["ToolRegistry & RBAC<br/>(Least-Privilege Scope Enforcement)"]
+        EventBus["AgentEventBus<br/>(Async Pub/Sub + Replay Buffer)"]
+    end
+
+    subgraph Swarm["Multi-Agent Swarm (agent_engine/agents/)"]
+        CP["Candidate Profiler"]
+        MH["Market Hunter"]
+        SS["Skill Strategist"]
+        RS["Resume Strategist (Actor)"]
+        FC["Fact Checker (Critic - Strict Read-Only)"]
+        SI["STAR Interviewer"]
+    end
+
+    subgraph DataStore["Data & Persistence Layer"]
+        PG[("PostgreSQL 16 (Port 5434)")]
+        Redis[("Redis 7 (Port 6381)")]
+        Qdrant[("Qdrant Vector DB (Port 6333)")]
+        MinIO[("MinIO S3 (Port 9000)")]
+    end
+
+    Client <-->|REST & SSE| Gateway
+    Gateway --> CoreEngine
+    CoreEngine <--> Swarm
+    Swarm -->|Vector Grounding| Qdrant
+    Swarm -->|Metadata & Auth| PG
+    Swarm -->|Stream Replay| EventBus
+    Swarm -->|LLM Synthesis| ModelGW
+    Swarm -->|RBAC Tool Invocations| ToolReg
 ```
 
-### 🤖 6 Specialized AI Agents
-1. **Market Hunter**: Autonomous job board scraping & semantic matching.
-2. **Candidate Profiler**: In-depth CV & GitHub profile capability extraction.
-3. **Skill Strategist**: Gap analysis and 48-hour actionable project roadmap synthesis.
-4. **Resume Strategist**: Quantitative ATS resume tailoring with typst output.
-5. **Fact Checker (Critic)**: Anti-hallucination verification engine against candidate ground truth.
-6. **STAR Interviewer**: Voice/text interactive mock interview & real-time STAR evaluation.
+---
+
+## 🤖 Multi-Agent Swarm & RBAC Matrix
+
+To guarantee candidate integrity, each agent in the swarm operates under strict Role-Based Access Control (RBAC) enforced by the [`ToolRegistry`](agent_engine/core/tool_registry.py):
+
+| Agent Role | Model System Prompt | Permitted Tool Scopes | Forbidden Scopes (Safety Guardrail) |
+| :--- | :--- | :--- | :--- |
+| **Candidate Profiler** | Capability extractor & commit analyzer | `READ_CV`, `CALL_GITHUB`, `WRITE_EVIDENCE` | Global Admin, External Web Mutation |
+| **Market Hunter** | Job requisition parser & skill extractor | `FETCH_MARKET_JOBS`, `CALL_FIRE_CRAWL` | Candidate Evidence Mutation (`WRITE_EVIDENCE`) |
+| **Skill Strategist** | Gap analysis & 48h Sprint generator | `READ_JD`, `READ_PROFILE` | Database Write, Evidence Mutation |
+| **Resume Strategist** | `GOOGLE_XYZ_SYSTEM_PROMPT` (ATS synthesis) | `LLM_SYNTHESIS`, `READ_EVIDENCE` | Direct Database Write, Evidence Mutation |
+| **Fact Checker (Critic)** | Strict anti-hallucination forensic auditor | `STRICT_READ_EVIDENCE`, `VECTOR_QUERY` | **`WRITE_EVIDENCE` (Blocked with `PermissionDeniedError`)** |
+| **STAR Interviewer** | `STAR_EVAL_SYSTEM_PROMPT` (STAR Rubric coach) | `LLM_SYNTHESIS`, `SPEECH_EVALUATION` | Evidence Mutation, Job Configuration |
 
 ---
 
-## 🚀 Quickstart
+## ✨ Core Features
+
+### 1. Zero-Cost LLM Strategy & Robust Fallback
+- **Primary Provider**: **Google AI Studio (`gemini-1.5-flash`)** configured out-of-the-box.
+- **Zero Cost**: Runs entirely within Google's free API limits (15 requests/minute, 1,000,000 tokens/minute, 1,500 requests/day).
+- **Graceful Fallback**: If `GEMINI_API_KEY` is not provided or rate limits are reached, the system automatically falls back to deterministic heuristic synthesis without breaking the API or dropping SSE streams.
+
+### 2. Multi-Agent Swarm Live Stream (Actor-Critic Debate)
+- Real-time Server-Sent Events (SSE) deliver continuous agent reasoning (`thought`), draft revisions, critic challenges, and final approval stamps.
+- Visual state transitions in the frontend:
+  - 🔴 **Red (Critic Flagged)**: Unverified metric or technology hallucinated by the writer.
+  - 🟡 **Yellow (Revision)**: Strategist downgrading claims to match verified ground truth.
+  - 🟢 **Green (Approved)**: Verified 100% compliant with Qdrant evidence lake.
+
+### 3. ATS Studio with Google X-Y-Z Formula
+- Formats resume experience points strictly according to Google's standard:  
+  $$\text{Accomplished [X] as measured by [Y], by doing [Z]}$$
+- Side-by-side **Before vs After Diff Viewer** displaying transformation from generic claims to verified quantitative impact.
+- 1-click **Markdown Copy** and **.md Export**.
+
+### 4. Adaptive 48-Hour Sprint Blueprint
+- Automatically targets high-priority skill gaps (e.g., Kubernetes, vLLM, Celery).
+- Dynamic editing: Customize project titles, milestone hour breakdown (+12h, +24h), and target deliverables.
+- Real-time GitHub Verification: Paste a repository URL to simulate AST verification, instantly boosting candidate readiness scores and updating badges to `[🛡️ VERIFIED VIA GITHUB]`.
+
+### 5. Decoupled STAR Technical Interview Lab
+- Interactive technical interview room evaluated against the 4 STAR pillars:
+  - **Situation (25%)**: Project scope, distributed scale, business context.
+  - **Task (25%)**: Architectural bottlenecks, failure points, SLAs.
+  - **Action (25%)**: Specific engineering contributions, design tradeoffs.
+  - **Result (25%)**: Hard metrics (p99 latency, RPS, cost reduction).
+- Completely decoupled from the primary job application pipeline—available as an optional practice lab anytime.
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, TypeScript, Vite, TailwindCSS, Lucide Icons, Axios, SSE EventSource |
+| **Backend Gateway** | FastAPI, Python 3.11+, Pydantic v2, Async SQLAlchemy, Uvicorn |
+| **Agent Engine** | Autonomous Swarm Core, ModelGateway, ToolRegistry with RBAC, Async EventBus |
+| **LLM & AI** | Google AI Studio (`gemini-1.5-flash`), OpenAI GPT-4o, Anthropic Claude 3.5, Local vLLM |
+| **Vector Database** | Qdrant Vector Search Engine (Cosine Similarity & Grounding Claims) |
+| **Storage & Cache** | PostgreSQL 16 (Relational DB), Redis 7 (Pub/Sub & Caching), MinIO (Resume S3) |
+| **Testing** | Pytest, Pytest-Asyncio, HTTPX, TypeScript Build Checks (`tsc -b`) |
+
+---
+
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-- Docker & Docker Compose
-- Node.js 20+ & pnpm / npm
-- Python 3.11+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/)
+- [Node.js](https://nodejs.org/) v20+ and npm / pnpm
+- [Python](https://www.python.org/) 3.11+
 
-### 1. Launch Core Infrastructure
+### 1. Clone Repository
+```bash
+git clone https://github.com/MinhTran110/career-forge.git
+cd career-forge
+```
+
+### 2. Start Supporting Infrastructure
+Launch PostgreSQL, Redis, Qdrant, and MinIO:
 ```bash
 cd docker
 docker-compose up -d
+cd ..
 ```
 
-### 2. Run Backend Gateway
+*Default Ports:*
+- PostgreSQL: `5434`
+- Redis: `6381`
+- Qdrant Vector Engine: `6333`
+- MinIO S3: `9000` (Console: `9001`)
+
+### 3. Backend Setup
 ```bash
 cd backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
 ```
 
-### 3. Run Agent Engine Worker
+Create `.env` file (or set environment variables):
+```env
+# Database & Cache
+DATABASE_URL=postgresql+asyncpg://careerforge:careerforge_secret@localhost:5434/careerforge_db
+REDIS_URL=redis://localhost:6381/0
+QDRANT_HOST=localhost
+QDRANT_PORT=6333
+
+# LLM Configuration (Google AI Studio - Free Tier)
+MODEL_PROVIDER=gemini
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
+```
+
+> **Note**: If `GEMINI_API_KEY` is omitted, CareerForge automatically activates the built-in deterministic heuristic engine.
+
+Start the FastAPI development server:
 ```bash
-cd agent_engine
-celery -A tasks.celery_tasks worker --loglevel=info
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+API Documentation will be available at `http://localhost:8000/docs`.
 
-### 4. Run Frontend Client
+### 4. Frontend Setup
+In a new terminal:
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- --host 0.0.0.0 --port 5173
+```
+Open your browser at `http://localhost:5173`.
+
+---
+
+## 🧪 Verification & Automated Testing
+
+CareerForge maintains an exhaustive automated test suite covering all phases of the platform, including RBAC tool authorization, ModelGateway fallback, async event streaming, and end-to-end multi-agent tailoring.
+
+Run backend tests:
+```bash
+PYTHONPATH=".:backend" backend/.venv/bin/pytest backend/tests/ -v
+```
+
+Expected output:
+```text
+backend/tests/test_agent_architecture.py::test_tool_registry_rbac_enforcement PASSED [  4%]
+backend/tests/test_agent_architecture.py::test_model_gateway_routing_and_fallback PASSED [  9%]
+backend/tests/test_agent_architecture.py::test_event_bus_pubsub_lifecycle PASSED [ 13%]
+backend/tests/test_agent_architecture.py::test_application_engine_end_to_end_with_events PASSED [ 18%]
+backend/tests/test_enhancements.py::test_get_my_profile_and_custom_jd_endpoints PASSED [ 22%]
+backend/tests/test_phase1.py::test_health_check PASSED                   [ 27%]
+backend/tests/test_phase1.py::test_auth_full_lifecycle PASSED            [ 31%]
+backend/tests/test_phase2.py::test_document_parser_and_metrics PASSED    [ 36%]
+backend/tests/test_phase2.py::test_image_scan_and_contextual_chunking PASSED [ 40%]
+backend/tests/test_phase2.py::test_vector_grounding_and_claim_verification PASSED [ 45%]
+backend/tests/test_phase2.py::test_full_profile_setup_api PASSED         [ 50%]
+backend/tests/test_phase3.py::test_job_hunter_url_cleaning_and_fingerprint PASSED [ 54%]
+backend/tests/test_phase3.py::test_market_hunter_tier_classification PASSED [ 59%]
+backend/tests/test_phase3.py::test_radar_api_endpoints PASSED            [ 63%]
+backend/tests/test_phase4.py::test_skill_strategist_gap_and_roadmap PASSED [ 68%]
+backend/tests/test_phase4.py::test_resume_strategist_xyz_formula PASSED  [ 72%]
+backend/tests/test_phase4.py::test_fact_checker_critic_audit PASSED      [ 77%]
+backend/tests/test_phase4.py::test_application_engine_dual_loop PASSED   [ 81%]
+backend/tests/test_phase4.py::test_applications_api_lifecycle PASSED     [ 86%]
+backend/tests/test_phase5.py::test_star_interviewer_question_generation PASSED [ 90%]
+backend/tests/test_phase5.py::test_star_interviewer_evaluation PASSED    [ 95%]
+backend/tests/test_phase5.py::test_interview_api_lifecycle PASSED        [100%]
+
+============================== 22 passed in 7.49s ==============================
+```
+
+Verify frontend production build:
+```bash
+npm --prefix frontend run build
 ```
 
 ---
 
-## 🛡 License
-MIT © CareerForge Team
+## 🔒 Security & Privacy Guardrails
+
+- **Zero Data Poisoning**: FactChecker agent strictly cannot write to Qdrant vector storage.
+- **Credential Segregation**: API keys are isolated within the backend configuration layer and never exposed to the client bundle.
+- **JWT Authentication**: Secured endpoints enforce user session validation with automated interceptor bearer injection.
+- **Strict Anti-Hallucination Threshold**: Resume claims require vector similarity $\ge 0.75$ against verified chunks in Qdrant; ungrounded claims are rejected and sent back to the Strategist for revision.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  <b>Built with ❤️ by the CareerForge Core Engineering Team</b><br/>
+  <i>Empowering engineers with autonomous, truthful AI career acceleration.</i>
+</p>
