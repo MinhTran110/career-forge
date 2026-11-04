@@ -108,11 +108,11 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
         >
           <span>←</span>
-          <span>Back to Skill Gap Blueprint</span>
+          <span>Quay lại Đánh giá kỹ năng</span>
         </button>
 
         <div className="text-xs text-slate-400 font-medium">
-          Step 4: Dual-Loop Google X-Y-Z Generator & Critic Auditor
+          Bước 3: Tối ưu hóa CV theo tin tuyển dụng
         </div>
       </div>
 
@@ -120,20 +120,20 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-6 shadow-xl">
         <div>
           <span className="text-xs text-sky-400 font-bold uppercase tracking-wider">
-            Target Job: {job?.title || 'Senior Software Engineer'} ({job?.company || 'FinFlow Tech'})
+            Công việc mục tiêu: {job?.title || 'Kỹ sư Phần mềm'} ({job?.company || 'FinFlow Tech'})
           </span>
-          <h1 className="text-2xl font-black text-white mt-1">ATS-Optimized Resume Studio</h1>
+          <h1 className="text-2xl font-black text-white mt-1">Xưởng Tối Ưu Hóa CV Theo Nhà Tuyển Dụng</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Zero-Hallucination Verified against Qdrant Lake •{' '}
-            <span className="text-emerald-400 font-bold">100% Grounded</span>
+            Đã đối chiếu xác thực 100% với kinh nghiệm thật của bạn •{' '}
+            <span className="text-emerald-400 font-bold">Không chém gió, không bịa đặt</span>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="secondary" onClick={handleCopy} className="cursor-pointer text-xs">
-            {copied ? '✓ Copied Markdown!' : '📋 Copy Markdown'}
+            {copied ? '✓ Đã sao chép!' : '📋 Sao chép CV'}
           </Button>
           <Button variant="primary" onClick={handleDownloadPdf} className="cursor-pointer text-xs">
-            📄 Download Resume (.md)
+            📄 Tải CV về máy (.md)
           </Button>
         </div>
       </div>
@@ -144,14 +144,14 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping" />
             <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <span>💬 AI Prompt Console</span>
-              <span className="text-[10px] text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-500/30 font-mono">
-                Direct Multi-Agent Steering
+              <span>💬 Hướng dẫn AI chỉnh sửa CV</span>
+              <span className="text-[10px] text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-500/30">
+                Ra lệnh trực tiếp cho AI
               </span>
             </span>
           </div>
           <span className="text-[11px] text-slate-400">
-            Agents active: <span className="text-sky-300 font-semibold">ResumeStrategist</span> & <span className="text-emerald-300 font-semibold">FactCheckerCritic</span>
+            Trợ lý AI: <span className="text-sky-300 font-semibold">Chuyên gia Tối ưu CV</span> & <span className="text-emerald-300 font-semibold">Chuyên gia Kiểm chứng sự thật</span>
           </span>
         </div>
 
@@ -163,7 +163,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleApplyPrompt()}
-              placeholder="E.g., Emphasize my 35% latency reduction and distributed caching achievements..."
+              placeholder="Nhập yêu cầu: Ví dụ: Nhấn mạnh kinh nghiệm giảm 35% độ trễ và tối ưu bộ nhớ..."
               className="w-full bg-slate-950/90 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400 transition-all font-sans"
             />
           </div>
@@ -176,11 +176,11 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             {isGenerating ? (
               <>
                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Dual-Loop Optimizing...</span>
+                <span>AI đang tối ưu hóa...</span>
               </>
             ) : (
               <>
-                <span>✨ Direct AI Rewrite</span>
+                <span>✨ AI Viết lại CV</span>
               </>
             )}
           </Button>
@@ -188,36 +188,36 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
 
         {/* Quick Action Chips */}
         <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
-          <span className="text-slate-400 font-semibold">Quick Presets:</span>
+          <span className="text-slate-400 font-semibold">Gợi ý yêu cầu nhanh:</span>
           <button
             onClick={() => {
-              const p = 'Inject missing keywords (Kubernetes, Helm) grounded with capstone project evidence';
+              const p = 'Bổ sung kỹ năng còn thiếu (Kubernetes, Helm) kèm bằng chứng dự án thực tế';
               setUserPrompt(p);
               handleApplyPrompt(p);
             }}
             className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-sky-300 border border-slate-700 hover:border-sky-500/40 cursor-pointer transition-all active:scale-95"
           >
-            🎯 Bridge Missing Keywords
+            🎯 Bổ sung kỹ năng còn thiếu
           </button>
           <button
             onClick={() => {
-              const p = 'Maximize metric density (p99 latency, RPS throughput, memory optimization)';
+              const p = 'Viết lại kinh nghiệm có số liệu ấn tượng (độ trễ p99, lượng truy cập, tối ưu bộ nhớ)';
               setUserPrompt(p);
               handleApplyPrompt(p);
             }}
             className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 border border-slate-700 hover:border-amber-500/40 cursor-pointer transition-all active:scale-95"
           >
-            ⚡ Maximize Metrics (Google X-Y-Z)
+            ⚡ Thêm số liệu ấn tượng (Google X-Y-Z)
           </button>
           <button
             onClick={() => {
-              const p = 'Refine tone to Staff / Principal Infrastructure Engineer level';
+              const p = 'Nâng cấp giọng văn sang cấp độ Kỹ sư Trưởng / Quản lý kỹ thuật';
               setUserPrompt(p);
               handleApplyPrompt(p);
             }}
             className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-indigo-300 border border-slate-700 hover:border-indigo-500/40 cursor-pointer transition-all active:scale-95"
           >
-            👔 Executive / Principal Tone
+            👔 Giọng văn Kỹ sư Trưởng / Quản lý
           </button>
         </div>
 
@@ -237,9 +237,9 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
         {/* ATS Score Gauge Card */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">ATS Match Score</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Độ khớp với công việc</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold">
-              READY TO APPLY
+              SẴN SÀNG NỘP ĐƠN
             </span>
           </div>
 
@@ -250,7 +250,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
 
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs">
             <div className="flex justify-between text-slate-300">
-              <span>Skill Coverage (50%)</span>
+              <span>Độ phủ kỹ năng yêu cầu (50%)</span>
               <span className="font-bold text-sky-400">92%</span>
             </div>
             <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
@@ -258,7 +258,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             </div>
 
             <div className="flex justify-between text-slate-300">
-              <span>Grounding Confidence (30%)</span>
+              <span>Độ xác thực bằng chứng thật (30%)</span>
               <span className="font-bold text-emerald-400">100%</span>
             </div>
             <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
@@ -266,7 +266,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             </div>
 
             <div className="flex justify-between text-slate-300">
-              <span>Metric Density (20%)</span>
+              <span>Mật độ số liệu định lượng (20%)</span>
               <span className="font-bold text-indigo-400">85%</span>
             </div>
             <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
@@ -279,10 +279,10 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
         <div className="md:col-span-2 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              🔍 Fact-Checker Audit & Google X-Y-Z Transformation
+              🔍 So sánh trước & sau khi AI nâng cấp câu mô tả
             </h3>
             <span className="text-[10px] text-emerald-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-              Formula: Accomplished [X] by [Y] doing [Z]
+              Cấu trúc: Đạt [Kết quả X] bằng [Giải pháp Y] làm [Hành động Z]
             </span>
           </div>
 
@@ -290,40 +290,40 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             {/* Diff 1 */}
             <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1.5">
               <div className="flex items-center gap-1.5 text-rose-400 font-semibold line-through">
-                <span>❌ Original:</span>
+                <span>❌ Câu cũ chung chung:</span>
                 <span>"Làm việc với FastAPI và tối ưu database cho công ty."</span>
               </div>
               <div className="flex items-center gap-1.5 text-emerald-300 font-semibold">
-                <span>✅ Google X-Y-Z:</span>
+                <span>✅ AI viết lại chuyên nghiệp:</span>
                 <span>
-                  "Architected asynchronous FastAPI microservices serving 12M monthly queries, achieving 35% p99 latency reduction, by deploying Redis connection pooling."
+                  "Thiết kế kiến trúc vi dịch vụ bất đồng bộ với FastAPI phục vụ 12 triệu lượt truy vấn/tháng, giảm 35% độ trễ p99 bằng giải pháp Redis connection pooling."
                 </span>
               </div>
               <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-400">
                 <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-                  🛡️ 0.92 Cosine Grounded
+                  🛡️ Bằng chứng xác thực thật
                 </span>
-                <span>Evidence: Pinned Repo <code className="text-sky-300">fastapi-cache</code></span>
+                <span>Từ mã nguồn: Kho lưu trữ <code className="text-sky-300">fastapi-cache</code></span>
               </div>
             </div>
 
             {/* Diff 2 */}
             <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1.5">
               <div className="flex items-center gap-1.5 text-rose-400 font-semibold line-through">
-                <span>❌ Original:</span>
+                <span>❌ Câu cũ chung chung:</span>
                 <span>"Xây dựng pipeline xử lý dữ liệu và deploy bằng Docker."</span>
               </div>
               <div className="flex items-center gap-1.5 text-emerald-300 font-semibold">
-                <span>✅ Google X-Y-Z:</span>
+                <span>✅ AI viết lại chuyên nghiệp:</span>
                 <span>
-                  "Scaled event streaming pipeline for data ingestion, achieving handling over 10,000 peak requests per second, by deploying Celery workers and Docker container orchestration."
+                  "Mở rộng luồng xử lý dữ liệu thời gian thực, đáp ứng trên 10.000 lượt request mỗi giây lúc cao điểm, bằng giải pháp Celery workers và Docker container."
                 </span>
               </div>
               <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-400">
                 <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-                  🛡️ 0.88 Cosine Grounded
+                  🛡️ Bằng chứng xác thực thật
                 </span>
-                <span>Evidence: GitHub Commit <code className="text-sky-300">73404a2</code></span>
+                <span>Từ mã nguồn: Commit GitHub <code className="text-sky-300">73404a2</code></span>
               </div>
             </div>
           </div>
@@ -343,12 +343,12 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           onClick={onBack}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer"
         >
-          <span>← Back to Skill Gap Blueprint</span>
+          <span>← Quay lại Đánh giá kỹ năng</span>
         </button>
 
         <div className="flex items-center gap-3">
           <Button variant="secondary" onClick={handleDownloadPdf} className="cursor-pointer text-xs">
-            📄 Download Resume (.md)
+            📄 Tải CV về máy (.md)
           </Button>
 
           {onNextToInterview && (
@@ -357,7 +357,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
               onClick={onNextToInterview}
               className="cursor-pointer inline-flex items-center gap-2 text-xs"
             >
-              <span>Practice STAR Mock Interview (Optional)</span>
+              <span>Tiếp theo: Luyện phỏng vấn thử (Tùy chọn)</span>
               <span>→</span>
             </Button>
           )}

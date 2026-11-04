@@ -76,11 +76,11 @@ export const DashboardPage: React.FC<{
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
           <div className="inline-block text-xs font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 border border-sky-500/30 px-2.5 py-1 rounded-full mb-2">
-            Step 1: Ground-Truth Profiling & Market Radar
+            Bước 1: Hồ sơ năng lực & Danh sách việc làm phù hợp
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Career Intelligence Radar</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">Việc Làm Phù Hợp Với Hồ Sơ Của Bạn</h1>
           <p className="text-sm text-slate-400 mt-1">
-            Ground-truth profiling with Qdrant Vector Lake & 3-Tier market opportunity matching
+            Tự động đối chiếu kỹ năng thực tế từ CV và GitHub của bạn để phân loại cơ hội việc làm theo 3 mức độ
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export const DashboardPage: React.FC<{
             className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-sky-500/60 text-sky-300 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer flex items-center gap-1.5"
           >
             <span>📋</span>
-            <span>Paste External JD</span>
+            <span>Thêm tin tuyển dụng (JD)</span>
           </button>
 
           <button
@@ -99,8 +99,8 @@ export const DashboardPage: React.FC<{
             disabled={isScanning}
             className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-sky-500/20 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
           >
-            <span>{isScanning ? '↻' : '📡'}</span>
-            <span>{isScanning ? 'Scanning...' : 'Scan Radar'}</span>
+            <span>{isScanning ? '↻' : '🔄'}</span>
+            <span>{isScanning ? 'Đang tìm kiếm...' : 'Quét việc làm mới'}</span>
           </button>
         </div>
       </div>
@@ -117,27 +117,32 @@ export const DashboardPage: React.FC<{
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
               <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <span>Recommended Tech Positions</span>
+                <span>Vị trí gợi ý cho bạn</span>
                 <span className="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700 font-normal">
-                  Source: Verified Market Feed
+                  Cập nhật liên tục
                 </span>
               </h2>
-              <span className="text-xs text-sky-400 font-medium">{filteredJobs.length} Opportunities found</span>
+              <span className="text-xs text-sky-400 font-medium">Tìm thấy {filteredJobs.length} vị trí phù hợp</span>
             </div>
 
             {/* Tier Filters */}
             <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs font-semibold">
-              {['all', 'safe', 'target', 'reach'].map((tier) => (
+              {[
+                { id: 'all', label: 'Tất cả' },
+                { id: 'safe', label: 'Vừa sức' },
+                { id: 'target', label: 'Mục tiêu' },
+                { id: 'reach', label: 'Thử thách' },
+              ].map(({ id, label }) => (
                 <button
-                  key={tier}
-                  onClick={() => setActiveTier(tier)}
-                  className={`px-3 py-1 rounded-lg capitalize transition-all cursor-pointer ${
-                    activeTier === tier
+                  key={id}
+                  onClick={() => setActiveTier(id)}
+                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    activeTier === id
                       ? 'bg-sky-500 text-slate-950 font-bold shadow-sm'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  {tier === 'all' ? 'All Roles' : `${tier} Tier`}
+                  {label}
                 </button>
               ))}
             </div>

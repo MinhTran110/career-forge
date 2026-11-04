@@ -55,28 +55,28 @@ async def get_benchmark_latency():
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold uppercase tracking-wider">
-              ⏱ 48-Hour Tactical Sprint
+              ⏱ Dự án học nhanh (48 giờ)
             </span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 font-bold">
-              Target: Bridge Missing JD Gaps
+              Bổ sung kỹ năng còn thiếu
             </span>
           </div>
           <h3 className="text-lg font-black text-white mt-1.5">{plan.title}</h3>
         </div>
 
         <div className="text-right">
-          <div className="text-[10px] text-slate-400 uppercase font-semibold">Projected Impact</div>
-          <div className="text-sm font-black text-emerald-400">+14% ATS Match</div>
+          <div className="text-[10px] text-slate-400 uppercase font-semibold">Hiệu quả dự kiến</div>
+          <div className="text-sm font-black text-emerald-400">+14% Điểm phù hợp</div>
         </div>
       </div>
 
       {/* Purpose & Objective Box */}
       <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs text-slate-300 space-y-1.5 leading-relaxed">
         <div className="font-bold text-sky-300 flex items-center gap-1.5">
-          <span>🎯 Strategic Purpose:</span>
+          <span>🎯 Mục đích thực tế:</span>
         </div>
         <p className="text-slate-400 text-[11px]">
-          {plan.objective} Once pushed to GitHub, your code will be indexed into Qdrant Lake as ground-truth evidence, converting an ATS skill gap into a verified proof.
+          {plan.objective} Sau khi hoàn thành và đẩy mã nguồn lên GitHub, dự án này sẽ trở thành bằng chứng năng lực thực tế trong hồ sơ của bạn, giúp biến điểm yếu kỹ năng thành điểm cộng khi phỏng vấn.
         </p>
       </div>
 
@@ -90,7 +90,7 @@ async def get_benchmark_latency():
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
-          📅 48h Timeline
+          📅 Lộ trình 48h
         </button>
         <button
           onClick={() => setActiveTab('architecture')}
@@ -100,7 +100,7 @@ async def get_benchmark_latency():
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
-          📐 Architecture
+          📐 Sơ đồ hệ thống
         </button>
         <button
           onClick={() => setActiveTab('cli')}
@@ -110,7 +110,7 @@ async def get_benchmark_latency():
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
-          💻 Quick CLI
+          💻 Lệnh chạy nhanh
         </button>
         <button
           onClick={() => setActiveTab('code')}
@@ -120,7 +120,7 @@ async def get_benchmark_latency():
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
           }`}
         >
-          📄 Boilerplate
+          📄 Mã nguồn mẫu
         </button>
       </div>
 
@@ -198,7 +198,7 @@ async def get_benchmark_latency():
       {/* Grounding & Verification Submission */}
       <div className="pt-2 border-t border-slate-800 space-y-2.5">
         <label className="text-[11px] font-bold text-slate-300 block">
-          Ready to verify? Submit your GitHub Repo URL to index into Vector Lake:
+          Sau khi hoàn thành, dán link GitHub Repo để hệ thống xác nhận kỹ năng:
         </label>
         <div className="flex gap-2">
           <input
@@ -214,7 +214,7 @@ async def get_benchmark_latency():
             disabled={isVerifying || !repoUrl.trim()}
             className="text-xs whitespace-nowrap cursor-pointer"
           >
-            {isVerifying ? '🔍 Indexing Lake...' : '⚡ Verify & Index'}
+            {isVerifying ? '🔍 Đang kiểm tra mã nguồn...' : '⚡ Xác nhận & Cập nhật'}
           </Button>
         </div>
 
@@ -222,7 +222,7 @@ async def get_benchmark_latency():
           <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-fadeIn">
             <span>✓</span>
             <span>
-              <strong>Grounded into Qdrant Lake:</strong> 4 atomic code chunks indexed. Candidate verified skills upgraded!
+              <strong>Đã ghi nhận thành công:</strong> 4 module mã nguồn đã được xác thực vào hồ sơ của bạn!
             </span>
           </div>
         )}

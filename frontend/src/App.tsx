@@ -65,46 +65,46 @@ export const App: React.FC = () => {
               onClick={() => setCurrentPage('dashboard')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 currentPage === 'dashboard'
-                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm shadow-sky-950'
+                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm shadow-sky-950 font-bold'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              1. Radar
+              1. Việc làm phù hợp
             </button>
 
             <button
               onClick={() => setCurrentPage('detail')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 currentPage === 'detail'
-                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm shadow-sky-950'
+                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm shadow-sky-950 font-bold'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              2. Skill & 48h Sprint
+              2. Đánh giá & Bổ sung kỹ năng
             </button>
 
             <button
               onClick={() => setCurrentPage('editor')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 currentPage === 'editor'
-                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm shadow-sky-950'
+                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm shadow-sky-950 font-bold'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              3. ATS Studio
+              3. Tối ưu hóa CV
             </button>
 
             <button
               onClick={() => setCurrentPage('interview')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                 currentPage === 'interview'
-                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-sm'
+                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-sm font-bold'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
             >
-              <span>🎙️ Mock Room</span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-purple-500/20 text-purple-300 font-normal">
-                Opt
+              <span>4. Luyện phỏng vấn</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 font-normal">
+                Tùy chọn
               </span>
             </button>
           </nav>

@@ -21,11 +21,11 @@ export const JobDetailPage: React.FC<JobDetailPageProps> = ({ job, onBack, onOpt
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
         >
           <span>←</span>
-          <span>Back to Opportunity Radar</span>
+          <span>Quay lại Việc làm phù hợp</span>
         </button>
 
         <div className="text-xs text-slate-400 font-medium">
-          Step 3: Skill Gap Analysis & 48h Sprint Blueprint
+          Bước 2: So sánh kỹ năng & Kế hoạch bổ sung
         </div>
       </div>
 
@@ -41,22 +41,21 @@ export const JobDetailPage: React.FC<JobDetailPageProps> = ({ job, onBack, onOpt
                 ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
                 : 'bg-purple-500/10 border border-purple-500/30 text-purple-400'
             }`}>
-              {job.tier ? `${job.tier} Tier` : 'Target'} • {job.match_score}% Match
+              {job.tier === 'safe' ? 'Vừa sức (Safe)' : job.tier === 'target' ? 'Mục tiêu (Target)' : 'Thử thách (Reach)'} • Phù hợp {job.match_score}%
             </span>
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight">{job.title}</h1>
           <p className="text-xs text-slate-400">
-            {job.location} • <span className="text-slate-300 font-semibold">{job.salary_range}</span> •{' '}
-            <span className="text-slate-500 font-mono">Source: Verified Market Radar</span>
+            {job.location} • <span className="text-slate-300 font-semibold">{job.salary_range}</span>
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="secondary" onClick={onStartInterview} className="cursor-pointer text-xs">
-            🎙 Practice Mock (Optional)
+            🎙️ Luyện phỏng vấn (Tùy chọn)
           </Button>
           <Button variant="primary" onClick={onOptimize} className="cursor-pointer flex items-center gap-2 text-xs">
-            <span>Next: Tailor Resume (Google X-Y-Z)</span>
+            <span>Tiếp theo: Tối ưu hóa CV cho việc này</span>
             <span>→</span>
           </Button>
         </div>
@@ -102,15 +101,15 @@ export const JobDetailPage: React.FC<JobDetailPageProps> = ({ job, onBack, onOpt
           onClick={onBack}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer"
         >
-          <span>← Back to Radar</span>
+          <span>← Quay lại Việc làm phù hợp</span>
         </button>
 
         <div className="flex items-center gap-3">
           <Button variant="secondary" onClick={onStartInterview} className="cursor-pointer text-xs">
-            🎙 Practice Mock (Optional)
+            🎙️ Luyện phỏng vấn (Tùy chọn)
           </Button>
           <Button variant="primary" onClick={onOptimize} className="cursor-pointer inline-flex items-center gap-2 text-xs">
-            <span>Next: Tailor ATS Resume</span>
+            <span>Tiếp theo: Tối ưu hóa CV</span>
             <span>→</span>
           </Button>
         </div>

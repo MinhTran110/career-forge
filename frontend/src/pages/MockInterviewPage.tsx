@@ -43,11 +43,11 @@ export const MockInterviewPage: React.FC<{
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
         >
           <span>←</span>
-          <span>Back to ATS Studio</span>
+          <span>Quay lại Tối ưu hóa CV</span>
         </button>
 
         <div className="text-xs text-slate-400 font-medium">
-          Step 5: STAR Technical & Behavioral Simulator (Optional Practice)
+          Bước 4: Phòng Luyện Phỏng Vấn Thử (Tùy chọn)
         </div>
       </div>
 
@@ -55,9 +55,9 @@ export const MockInterviewPage: React.FC<{
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs text-purple-400 font-bold uppercase tracking-wider bg-purple-500/10 border border-purple-500/30 px-2.5 py-1 rounded-full">
-              Specialist Agent #5: STAR Interviewer
+              Người phỏng vấn ảo (STAR Framework)
             </span>
-            <span className="text-xs text-slate-400">Question 1 of 3</span>
+            <span className="text-xs text-slate-400">Câu hỏi 1 / 3</span>
           </div>
 
           {/* Mode Switcher: Text vs Voice */}
@@ -149,7 +149,7 @@ export const MockInterviewPage: React.FC<{
           onClick={onBack}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer"
         >
-          <span>← Back to ATS Studio</span>
+          <span>← Quay lại Tối ưu hóa CV</span>
         </button>
 
         {onBackToRadar && (
@@ -158,7 +158,7 @@ export const MockInterviewPage: React.FC<{
             onClick={onBackToRadar}
             className="cursor-pointer inline-flex items-center gap-2"
           >
-            <span>Return to Opportunity Radar</span>
+            <span>Hoàn thành & Về trang Việc làm phù hợp</span>
             <span>✓</span>
           </Button>
         )}
