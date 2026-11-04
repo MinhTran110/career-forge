@@ -34,21 +34,28 @@ export const JobDetailPage: React.FC<JobDetailPageProps> = ({ job, onBack, onOpt
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-xs text-sky-400 font-extrabold uppercase tracking-wider">{job.company}</span>
-            <span className="text-xs px-2 py-0.5 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-300 font-bold">
-              {job.match_score}% Match
+            <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+              job.tier === 'safe'
+                ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                : job.tier === 'target'
+                ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
+                : 'bg-purple-500/10 border border-purple-500/30 text-purple-400'
+            }`}>
+              {job.tier ? `${job.tier} Tier` : 'Target'} • {job.match_score}% Match
             </span>
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight">{job.title}</h1>
           <p className="text-xs text-slate-400">
-            {job.location} • <span className="text-slate-300 font-semibold">{job.salary_range}</span>
+            {job.location} • <span className="text-slate-300 font-semibold">{job.salary_range}</span> •{' '}
+            <span className="text-slate-500 font-mono">Source: Verified Market Radar</span>
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Button variant="secondary" onClick={onStartInterview} className="cursor-pointer">
-            🎙 Mock Interview
+          <Button variant="secondary" onClick={onStartInterview} className="cursor-pointer text-xs">
+            🎙 Practice Mock (Optional)
           </Button>
-          <Button variant="primary" onClick={onOptimize} className="cursor-pointer flex items-center gap-2">
+          <Button variant="primary" onClick={onOptimize} className="cursor-pointer flex items-center gap-2 text-xs">
             <span>Next: Tailor Resume (Google X-Y-Z)</span>
             <span>→</span>
           </Button>
@@ -59,23 +66,30 @@ export const JobDetailPage: React.FC<JobDetailPageProps> = ({ job, onBack, onOpt
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <SkillGapMatrix
           items={[
-            { skill: 'FastAPI / Asyncio Microservices', candidate_level: 95, required_level: 90, status: 'matched' },
-            { skill: 'Docker Containerization & CI/CD', candidate_level: 90, required_level: 85, status: 'matched' },
-            { skill: 'Redis Cache & Connection Pooling', candidate_level: 85, required_level: 85, status: 'matched' },
-            { skill: 'Kubernetes Orchestration', candidate_level: 65, required_level: 85, status: 'moderate' },
-            { skill: 'vLLM / Triton High-Throughput Serving', candidate_level: 30, required_level: 80, status: 'critical_gap' },
+            ...(job.matched_skills || ['FastAPI', 'Python', 'Docker', 'Redis']).map((s) => ({
+              skill: s,
+              candidate_level: 90,
+              required_level: 85,
+              status: 'matched' as const,
+            })),
+            ...(job.missing_skills || ['Kubernetes', 'vLLM']).map((s) => ({
+              skill: s,
+              candidate_level: 30,
+              required_level: 80,
+              status: 'critical_gap' as const,
+            })),
           ]}
         />
         <MiniProjectCard
           plan={{
             id: 'proj_1',
-            title: `48h Sprint: High-Throughput ${job.title.split('/')[0].trim()} Capstone`,
-            objective: 'Build and verify an open-source prototype implementing missing skills to generate verifiable commit proof.',
+            title: `48h Sprint: ${job.missing_skills?.[0] || 'High-Throughput'} Capstone Project`,
+            objective: `Bridge critical skill gap in ${job.missing_skills?.join(', ') || 'distributed systems'} by shipping a reproducible Dockerized prototype to your GitHub.`,
             estimated_hours: 48,
             steps: [
-              { hour: 12, description: 'Milestone 1: Scaffold architecture and data contract in Docker', deliverable: 'Local repo & Compose' },
-              { hour: 24, description: 'Milestone 2: Implement async pipeline & connection pool logic', deliverable: 'End-to-end API' },
-              { hour: 36, description: 'Milestone 3: Benchmark latency metrics (p95/p99) with Locust', deliverable: 'Documented test metrics' },
+              { hour: 12, description: `Milestone 1: Scaffold architecture and ${job.missing_skills?.[0] || 'service'} skeleton with Docker`, deliverable: 'Local repo & docker-compose.yml' },
+              { hour: 24, description: 'Milestone 2: Implement core async logic resolving the skill gap', deliverable: 'End-to-end working pipeline' },
+              { hour: 36, description: 'Milestone 3: Benchmark latency metrics (p95/p99) with Locust', deliverable: 'Documented test metrics & report' },
               { hour: 48, description: 'Milestone 4: Tag GitHub v1.0.0 release & index evidence lake', deliverable: 'Ground-truth commit proof' },
             ],
           }}
@@ -92,10 +106,10 @@ export const JobDetailPage: React.FC<JobDetailPageProps> = ({ job, onBack, onOpt
         </button>
 
         <div className="flex items-center gap-3">
-          <Button variant="secondary" onClick={onStartInterview} className="cursor-pointer">
-            Mock Room
+          <Button variant="secondary" onClick={onStartInterview} className="cursor-pointer text-xs">
+            🎙 Practice Mock (Optional)
           </Button>
-          <Button variant="primary" onClick={onOptimize} className="cursor-pointer inline-flex items-center gap-2">
+          <Button variant="primary" onClick={onOptimize} className="cursor-pointer inline-flex items-center gap-2 text-xs">
             <span>Next: Tailor ATS Resume</span>
             <span>→</span>
           </Button>
@@ -104,3 +118,4 @@ export const JobDetailPage: React.FC<JobDetailPageProps> = ({ job, onBack, onOpt
     </div>
   );
 };
+

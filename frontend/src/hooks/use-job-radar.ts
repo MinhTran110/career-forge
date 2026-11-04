@@ -47,5 +47,6 @@ export function useJobRadar() {
     filterType === 'all' ? true : job.job_type.toLowerCase() === filterType.toLowerCase()
   );
 
-  return { jobs: filteredJobs, loading, filterType, setFilterType };
+  return { jobs: filteredJobs, loading, filterType, setFilterType, setJobs };
 }
+

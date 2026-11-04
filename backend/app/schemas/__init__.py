@@ -48,6 +48,16 @@ class JobResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CustomJDRequest(BaseModel):
+    title: str = "Senior AI Engineer"
+    company: str = "Tech Company"
+    description: str
+    salary_range: str | None = "$120k - $160k"
+    location: str | None = "Remote"
+    url: str | None = None
+
+
+
 # Application & ATS Schemas
 class ApplicationCreate(BaseModel):
     job_id: str

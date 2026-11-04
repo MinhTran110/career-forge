@@ -42,6 +42,32 @@ export interface StarScores {
 
 export interface AgentEvent {
   step: string;
+  agent?: string;
+  status?: 'info' | 'draft' | 'critic_alert' | 'critic_revision' | 'approved' | string;
+  thought?: string;
   message: string;
   timestamp: string;
 }
+
+export interface CandidateProfile {
+  user_id: string;
+  email: string;
+  full_name: string;
+  headline: string;
+  github_username: string;
+  verified_skills: string[];
+  github_metrics: {
+    total_commits?: number;
+    repositories_analyzed?: number;
+    top_languages?: string[];
+  };
+  verified_repos: string[];
+  qdrant_indexed: boolean;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  full_name?: string;
+}
+
