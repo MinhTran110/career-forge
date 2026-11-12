@@ -1,21 +1,34 @@
 
+import logging
+import os
 from datetime import UTC, datetime
 from pathlib import Path
+from pydantic import BaseModel
 
 from agent_engine.agents.candidate_profiler import CandidateProfilerAgent
+from agent_engine.core.model_gateway import model_gateway
 from agent_engine.tools.vector_retriever import VectorRetrieverTool
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.profile import Profile
 from app.models.user import User
 
+logger = logging.getLogger("app.api.profile")
+
 router = APIRouter()
 vector_tool = VectorRetrieverTool()
 profiler_agent = CandidateProfilerAgent(vector_tool=vector_tool)
+
+
+class ApiKeyConfigRequest(BaseModel):
+    api_key: str
+    provider: str = "gemini"
+    model: str = "gemini-1.5-flash"
 
 
 @router.post("/setup")
@@ -192,5 +205,70 @@ async def query_candidate_evidence(
         "query": query or "all_evidence",
         "evidences": results,
     }
+
+
+@router.get("/api-key-status")
+async def get_api_key_status():
+    """Returns current active LLM status and masked key."""
+    current_key = os.getenv("GEMINI_API_KEY") or settings.GEMINI_API_KEY
+    is_configured = bool(current_key and len(current_key) > 8)
+    masked = f"{current_key[:4]}...{current_key[-4:]}" if is_configured else ""
+    return {
+        "is_configured": is_configured,
+        "provider": settings.MODEL_PROVIDER or "gemini",
+        "model": settings.GEMINI_MODEL or "gemini-1.5-flash",
+        "masked_key": masked,
+    }
+
+
+@router.post("/set-api-key")
+async def set_api_key(payload: ApiKeyConfigRequest):
+    """Sets the LLM API key dynamically in runtime and persists to .env."""
+    key = payload.api_key.strip()
+    if not key:
+        raise HTTPException(status_code=400, detail="API key cannot be empty")
+
+    os.environ["GEMINI_API_KEY"] = key
+    settings.GEMINI_API_KEY = key
+    settings.MODEL_PROVIDER = payload.provider
+    settings.GEMINI_MODEL = payload.model
+
+    model_gateway.update_api_key(api_key=key, provider=payload.provider, model_name=payload.model)
+
+    try:
+        env_path = Path(__file__).resolve().parents[4] / ".env"
+        lines = []
+        if env_path.exists():
+            lines = env_path.read_text(encoding="utf-8").splitlines()
+
+        updated = False
+        new_lines = []
+        for line in lines:
+            if line.startswith("GEMINI_API_KEY="):
+                new_lines.append(f"GEMINI_API_KEY={key}")
+                updated = True
+            elif line.startswith("MODEL_PROVIDER="):
+                new_lines.append(f"MODEL_PROVIDER={payload.provider}")
+            elif line.startswith("GEMINI_MODEL="):
+                new_lines.append(f"GEMINI_MODEL={payload.model}")
+            else:
+                new_lines.append(line)
+        if not updated:
+            new_lines.append(f"GEMINI_API_KEY={key}")
+            new_lines.append(f"MODEL_PROVIDER={payload.provider}")
+            new_lines.append(f"GEMINI_MODEL={payload.model}")
+        env_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+    except Exception as e:
+        logger.warning(f"Could not persist to .env file: {e}")
+
+    return {
+        "status": "success",
+        "message": "API key successfully activated for Multi-Agent models.",
+        "is_configured": True,
+        "masked_key": f"{key[:4]}...{key[-4:]}",
+        "provider": payload.provider,
+        "model": payload.model,
+    }
+
 
 

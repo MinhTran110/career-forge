@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useJobRadar } from '@/hooks/use-job-radar';
-import { useAgentStream } from '@/hooks/use-agent-stream';
 import { JobCard } from '@/components/radar/JobCard';
-import { AgentStepper } from '@/components/pipeline/AgentStepper';
-import { AgentDebateStream } from '@/components/pipeline/AgentDebateStream';
 import { CandidateProfileCard } from '@/components/profile/CandidateProfileCard';
 import { CustomJdModal } from '@/components/radar/CustomJdModal';
 import { getMyProfile, triggerRadarScan } from '@/services/api';
@@ -13,12 +10,10 @@ import { useLanguage } from '@/context/LanguageContext';
 export const DashboardPage: React.FC<{
   onSelectJob: (job: Job) => void;
   onStepClick?: (stepIndex: number) => void;
-}> = ({ onSelectJob, onStepClick }) => {
+}> = ({ onSelectJob }) => {
   const { t } = useLanguage();
   const { jobs, loading, setJobs } = useJobRadar();
   const [activeTier, setActiveTier] = useState<string>('all');
-  const [workflowId, setWorkflowId] = useState<string>('session_init');
-  const { events, isConnected } = useAgentStream(workflowId);
   const [profile, setProfile] = useState<CandidateProfile | null>(null);
   const [isCustomJdOpen, setIsCustomJdOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
@@ -39,7 +34,6 @@ export const DashboardPage: React.FC<{
       setIsScanning(true);
       const updatedJobs = await triggerRadarScan();
       if (setJobs) setJobs(updatedJobs);
-      setWorkflowId(`profile_sync_${Date.now()}`);
     } catch (err) {
       console.error('Scan error:', err);
     } finally {
@@ -59,7 +53,6 @@ export const DashboardPage: React.FC<{
       setIsScanning(true);
       const freshJobs = await triggerRadarScan();
       if (setJobs) setJobs(freshJobs);
-      setWorkflowId(`rescan_${Date.now()}`);
     } catch (err) {
       console.error(err);
     } finally {
@@ -109,80 +102,68 @@ export const DashboardPage: React.FC<{
         </div>
       </div>
 
-      {/* Stepper Navigation */}
-      <AgentStepper currentStepIndex={0} onNavigateToStep={onStepClick} />
-
       {/* Candidate Profiler & Ground-Truth Card */}
       <CandidateProfileCard profile={profile} onProfileUpdated={handleProfileUpdated} />
 
-      {/* Main Grid: Jobs List vs Multi-Agent Telemetry Stream */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-            <div>
-              <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <span>{t('dash.recommended')}</span>
-                <span className="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700 font-normal">
-                  {t('dash.live_updates')}
-                </span>
-              </h2>
-              <span className="text-xs text-sky-400 font-medium">
-                {filteredJobs.length} {t('dash.positions_found')}
+      {/* Main Jobs Radar List */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+          <div>
+            <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+              <span>{t('dash.recommended')}</span>
+              <span className="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700 font-normal">
+                {t('dash.live_updates')}
               </span>
-            </div>
-
-            {/* Tier Filters */}
-            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs font-semibold">
-              {[
-                { id: 'all', label: t('dash.tier_all') },
-                { id: 'safe', label: t('dash.tier_safe') },
-                { id: 'target', label: t('dash.tier_target') },
-                { id: 'reach', label: t('dash.tier_reach') },
-              ].map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() => setActiveTier(id)}
-                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    activeTier === id
-                      ? 'bg-sky-500 text-slate-950 font-bold shadow-sm'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            </h2>
+            <span className="text-xs text-sky-400 font-medium">
+              {filteredJobs.length} {t('dash.positions_found')}
+            </span>
           </div>
 
-          {loading || isScanning ? (
-            <div className="text-center p-16 text-slate-500 border border-slate-800/80 rounded-2xl bg-slate-900/40">
-              <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto mb-3" />
-              Scanning and matching market opportunities against Qdrant Ground-Truth...
-            </div>
-          ) : filteredJobs.length === 0 ? (
-            <div className="text-center p-12 text-slate-400 border border-slate-800/80 rounded-2xl bg-slate-900/40">
-              No jobs found matching "{activeTier}" tier.
-            </div>
-          ) : (
-            filteredJobs.map((job) => (
+          {/* Tier Filters */}
+          <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl text-xs font-semibold">
+            {[
+              { id: 'all', label: t('dash.tier_all') },
+              { id: 'safe', label: t('dash.tier_safe') },
+              { id: 'target', label: t('dash.tier_target') },
+              { id: 'reach', label: t('dash.tier_reach') },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTier(id)}
+                className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                  activeTier === id
+                    ? 'bg-sky-500 text-slate-950 font-bold shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {loading || isScanning ? (
+          <div className="text-center p-16 text-slate-500 border border-slate-800/80 rounded-2xl bg-slate-900/40">
+            <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto mb-3" />
+            Đang quét và đối chiếu vị trí tuyển dụng với hồ sơ năng lực của bạn...
+          </div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="text-center p-12 text-slate-400 border border-slate-800/80 rounded-2xl bg-slate-900/40">
+            Không tìm thấy vị trí tuyển dụng trong nhóm "{activeTier}".
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredJobs.map((job) => (
               <JobCard
                 key={job.id}
                 job={job}
                 onSelect={onSelectJob}
                 onQuickView={(j) => setQuickViewJob(j)}
               />
-            ))
-          )}
-        </div>
-
-        {/* Right Column: Multi-Agent Debate & Thought Stream */}
-        <div>
-          <AgentDebateStream
-            events={events}
-            isConnected={isConnected}
-            onRerun={() => setWorkflowId(`swarm_${Date.now()}`)}
-          />
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* External Custom JD Modal */}

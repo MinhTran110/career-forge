@@ -199,6 +199,14 @@ class ModelGateway:
         self.primary_client = self._resolve_client()
         self.fallback_client = FallbackHeuristicClient()
 
+    def update_api_key(self, api_key: str, provider: str = "gemini", model_name: str = "gemini-1.5-flash") -> None:
+        """Dynamically hot-reloads the LLM provider and credentials at runtime."""
+        self.api_key = api_key
+        self.provider = provider.lower()
+        self.model_name = model_name
+        self.primary_client = self._resolve_client()
+        logger.info(f"ModelGateway dynamically reloaded for provider: {self.provider}, model: {self.model_name}")
+
     def _resolve_client(self) -> BaseLLMClient:
         # 1. Primary: Google AI Studio (Gemini) - Generous Free Tier
         gemini_key = os.getenv("GEMINI_API_KEY") or (self.api_key if self.provider == "gemini" else "")

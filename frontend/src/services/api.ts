@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CandidateProfile, Job, User } from '@/types';
+import { ApiKeyStatus, CandidateProfile, GenerateQuestionsResponse, Job, User } from '@/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
@@ -164,4 +164,55 @@ export const compilePdf = async (markdownContent: string): Promise<Blob> => {
   );
   return response.data;
 };
+
+// API Key Configuration APIs
+export const getApiKeyStatus = async (): Promise<ApiKeyStatus> => {
+  const response = await apiClient.get<ApiKeyStatus>('/profile/api-key-status');
+  return response.data;
+};
+
+export const setApiKey = async (apiKey: string, provider: string = 'gemini', model: string = 'gemini-1.5-flash') => {
+  const response = await apiClient.post('/profile/set-api-key', {
+    api_key: apiKey,
+    provider,
+    model,
+  });
+  return response.data;
+};
+
+// Interview & Question Generation APIs
+export const generateInterviewQuestionsFromCv = async (payload: {
+  job_id?: string;
+  job_title?: string;
+  job_description?: string;
+  cv_skills?: string[];
+  target_requirements?: string[];
+  num_questions?: number;
+}): Promise<GenerateQuestionsResponse> => {
+  await ensureAuthenticated();
+  const response = await apiClient.post<GenerateQuestionsResponse>(
+    '/interviews/generate-questions-from-cv',
+    payload
+  );
+  return response.data;
+};
+
+export const createInterviewSession = async (jobId?: string, title?: string) => {
+  await ensureAuthenticated();
+  const response = await apiClient.post('/interviews/session', {
+    job_id: jobId,
+    title,
+  });
+  return response.data;
+};
+
+export const submitInterviewAnswer = async (sessionId: string, questionIndex: number, answerText: string) => {
+  await ensureAuthenticated();
+  const response = await apiClient.post(`/interviews/${sessionId}/answer`, {
+    question_index: questionIndex,
+    answer_text: answerText,
+  });
+  return response.data;
+};
+
 

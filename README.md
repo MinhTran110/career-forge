@@ -17,11 +17,11 @@
 **CareerForge** is a production-grade autonomous multi-agent platform designed to bridge the gap between engineering talent and competitive tech job markets. Unlike static resume builders or generic LLM wrappers, CareerForge enforces **cryptographic and vector-grounded anti-hallucination guardrails**, real-time **Actor-Critic multi-agent debate**, and an **evidence lake** indexed directly from candidate repositories, commits, and verified metrics.
 
 ### Key Pillars
-- **Zero-Cost High-Performance LLM Gateway**: Built-in support for **Google AI Studio (`gemini-1.5-flash`)** utilizing Google's free tier (15 RPM / 1M TPM / 1,500 RPD) alongside automated heuristic fallback for offline testing.
+- **Zero-Cost High-Performance LLM Gateway**: Built-in support for **Google AI Studio (`gemini-1.5-flash`)** utilizing Google's free tier (15 RPM / 1M TPM / 1,500 RPD without credit card) alongside in-app UI settings and automated heuristic fallback for offline testing.
+- **Vietnamese Tech Market Jobs**: Seeded with authentic domestic engineering opportunities (VNG Corporation, MoMo M-Service, Viettel Solutions, FPT Software, Techcombank) with real VND salary packages and direct careers portal links.
 - **Actor-Critic Anti-Hallucination Loop**: A dual-loop system where the **Resume Strategist (Actor)** generates high-impact Google X-Y-Z bullets while the **Fact Checker (Critic)** strictly audits every single metric against an immutable Qdrant Evidence Lake.
 - **Role-Based Access Control (RBAC) Tool Registry**: Strict least-privilege tool execution—Critic agents are cryptographically barred from write operations to prevent synthetic evidence hallucination.
-- **Live EventBus Streaming**: Real-time Server-Sent Events (SSE) streaming inner reasoning (`thought`) and debate turns between agents directly to the user interface.
-- **Adaptive 48h Sprint Blueprint**: Interactive mini-project generator that responds to candidate GitHub commit links, validates codebase AST patterns, and dynamically bridges skill gaps from 30% to 92%.
+- **Dedicated CV & JD Interview Studio**: Automatically cross-references skills verified from the candidate's CV with the target company's JD to generate technical deep-dive, system design, and STAR behavioral questions with model answers and tips.
 
 ---
 
@@ -30,19 +30,18 @@
 ```mermaid
 flowchart TD
     subgraph Client["Frontend Client (React 19 + TypeScript + Vite)"]
-        UI_Radar["🎯 Market Radar & Custom JD"]
-        UI_Stream["⚡ Agent Debate Stream (SSE)"]
-        UI_Editor["✍️ ATS Studio (Google X-Y-Z Diff)"]
-        UI_Sprint["📊 Adaptive 48h Sprint"]
-        UI_Interview["🎙️ STAR Mock Room"]
+        UI_Radar["🎯 Việc làm & Hồ sơ (Vietnam Tech Jobs & Profile)"]
+        UI_Editor["✍️ ATS Resume Studio (Google X-Y-Z Diff & Gap Matrix)"]
+        UI_Interview["🎙️ Luyện phỏng vấn (CV & JD Tailored STAR Lab)"]
+        UI_ApiKey["⚙️ Cài đặt API AI (Google Gemini Free Tier)"]
     end
 
     subgraph Gateway["FastAPI API Gateway (Port 8000)"]
         Auth["JWT Auth Interceptor"]
         AppEndpoints["/api/v1/applications/tailor"]
-        StreamEndpoints["/api/v1/streams/agent-events"]
         RadarEndpoints["/api/v1/radar/jobs & custom-jd"]
-        ProfileEndpoints["/api/v1/profile/setup"]
+        ProfileEndpoints["/api/v1/profile/setup & /set-api-key"]
+        InterviewEndpoints["/api/v1/interviews/generate-questions-from-cv"]
     end
 
     subgraph CoreEngine["Agent Engine Core (agent_engine/core/)"]
@@ -57,7 +56,7 @@ flowchart TD
         SS["Skill Strategist"]
         RS["Resume Strategist (Actor)"]
         FC["Fact Checker (Critic - Strict Read-Only)"]
-        SI["STAR Interviewer"]
+        SI["STAR Interviewer (CV & JD Question Engine)"]
     end
 
     subgraph DataStore["Data & Persistence Layer"]
@@ -94,38 +93,35 @@ To guarantee candidate integrity, each agent in the swarm operates under strict 
 
 ---
 
-## ✨ Core Features
+## ✨ Core Features & 3 Workspaces
 
-### 1. Zero-Cost LLM Strategy & Robust Fallback
-- **Primary Provider**: **Google AI Studio (`gemini-1.5-flash`)** configured out-of-the-box.
-- **Zero Cost**: Runs entirely within Google's free API limits (15 requests/minute, 1,000,000 tokens/minute, 1,500 requests/day).
-- **Graceful Fallback**: If `GEMINI_API_KEY` is not provided or rate limits are reached, the system automatically falls back to deterministic heuristic synthesis without breaking the API or dropping SSE streams.
+### 1. Workspace 1: Việc làm & Hồ sơ (Jobs & Radar)
+- **Authentic Domestic Tech Jobs**: Curated with leading Vietnamese technology firms (VNG, MoMo, Viettel, FPT, Techcombank) with realistic VND compensation (30M - 65M VND/tháng) and working links.
+- **Candidate Grounding**: Upload PDF resume and link GitHub to automatically parse, benchmark, and index verified evidence chunks into Qdrant vector database.
+- **Clean UI**: Removed jargon and complex telemetries for an effortless, intuitive user experience.
 
-### 2. Multi-Agent Swarm Live Stream (Actor-Critic Debate)
-- Real-time Server-Sent Events (SSE) deliver continuous agent reasoning (`thought`), draft revisions, critic challenges, and final approval stamps.
-- Visual state transitions in the frontend:
-  - 🔴 **Red (Critic Flagged)**: Unverified metric or technology hallucinated by the writer.
-  - 🟡 **Yellow (Revision)**: Strategist downgrading claims to match verified ground truth.
-  - 🟢 **Green (Approved)**: Verified 100% compliant with Qdrant evidence lake.
-
-### 3. ATS Studio with Google X-Y-Z Formula
-- Formats resume experience points strictly according to Google's standard:  
+### 2. Workspace 2: ATS Resume Studio
+- **Google X-Y-Z Formula**:
   $$\text{Accomplished [X] as measured by [Y], by doing [Z]}$$
-- Side-by-side **Before vs After Diff Viewer** displaying transformation from generic claims to verified quantitative impact.
-- 1-click **Markdown Copy** and **.md Export**.
+- **1-Click Tailor**: Seamless transition directly from any job card to tailored resume generation.
+- **Before vs After Diff Viewer**: Live visual audit comparing candidate draft with AI-enhanced, grounded bullet points.
+- **Skill Gap Summary**: Interactive tags highlighting verified matching skills vs missing requirements.
 
-### 4. Adaptive 48-Hour Sprint Blueprint
-- Automatically targets high-priority skill gaps (e.g., Kubernetes, vLLM, Celery).
-- Dynamic editing: Customize project titles, milestone hour breakdown (+12h, +24h), and target deliverables.
-- Real-time GitHub Verification: Paste a repository URL to simulate AST verification, instantly boosting candidate readiness scores and updating badges to `[🛡️ VERIFIED VIA GITHUB]`.
+### 3. Workspace 3: Luyện phỏng vấn (CV & JD Interview Studio)
+- **Automatic Question Generation**: Cross-references verified CV skills with target JD requirements.
+- **Categorized Question Types**:
+  - *Kỹ thuật chuyên sâu (CV Skills)*: Deep architecture and I/O questions tailored to candidate's background.
+  - *Kiến trúc & Tích hợp (JD Scale)*: High-throughput distributed patterns requested by the employer.
+  - *Kỹ năng mở rộng (Skill Gap)*: How candidate bridges gap skills.
+  - *Tình huống STAR & Leadership*: Resolving technical debt and outage incidents.
+- **STAR Model Answers & Interview Tips**: Full outline with Situation, Task, Action, Result and recruiter advice.
+- **Instant 4-Pillar Scoring**: Live evaluation scoring Situation, Task, Action, Result, plus actionable strengths and improvements.
 
-### 5. Decoupled STAR Technical Interview Lab
-- Interactive technical interview room evaluated against the 4 STAR pillars:
-  - **Situation (25%)**: Project scope, distributed scale, business context.
-  - **Task (25%)**: Architectural bottlenecks, failure points, SLAs.
-  - **Action (25%)**: Specific engineering contributions, design tradeoffs.
-  - **Result (25%)**: Hard metrics (p99 latency, RPS, cost reduction).
-- Completely decoupled from the primary job application pipeline—available as an optional practice lab anytime.
+### 4. Zero-Cost LLM Setup (Google AI Studio)
+- Click **`⚙️ Cài đặt API (Miễn phí)`** in the header to activate live LLM capabilities with a free Google Gemini key in seconds.
+- 100% Free: 15 RPM / 1M TPM / 1,500 RPD without credit card.
+- Supports Google Gemini (`gemini-1.5-flash`), Groq Cloud (Llama 3.3 70B), and local vLLM / Ollama.
+
 
 ---
 

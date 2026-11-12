@@ -51,9 +51,9 @@ class MarketHunterAgent:
             composite_score = round((skill_ratio * 0.70 + semantic_score * 0.30) * 100, 1)
 
             # 3. 3-Tier Classification
-            if composite_score >= 82.0 and len(missing_skills) <= 1:
+            if (composite_score >= 74.0 and len(missing_skills) <= 1) or composite_score >= 82.0:
                 tier = "safe"
-            elif composite_score >= 68.0:
+            elif composite_score >= 60.0:
                 tier = "target"
             else:
                 tier = "reach"

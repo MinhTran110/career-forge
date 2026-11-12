@@ -63,6 +63,110 @@ class StarInterviewerAgent:
 
         return standard_pool[:num_questions]
 
+    def generate_interview_questions_from_cv_and_jd(
+        self,
+        cv_skills: Optional[List[str]] = None,
+        job_title: str = "Senior Software Engineer",
+        job_description: str = "",
+        target_requirements: Optional[List[str]] = None,
+        num_questions: int = 4,
+    ) -> Dict[str, Any]:
+        """Generates hyper-tailored interview questions cross-referencing candidate's CV skills with the target Job Description."""
+        cv_list = [s.strip() for s in (cv_skills or []) if s.strip()]
+        if not cv_list:
+            cv_list = ["Python", "FastAPI", "Docker", "PostgreSQL", "Redis"]
+
+        req_list = [r.strip() for r in (target_requirements or []) if r.strip()]
+        if not req_list:
+            req_list = ["Python", "Microservices", "Docker", "Kubernetes", "Redis", "Kafka"]
+
+        cv_lower_map = {s.lower(): s for s in cv_list}
+        req_lower_map = {r.lower(): r for r in req_list}
+
+        matched_skills = [cv_lower_map[k] for k in cv_lower_map if k in req_lower_map]
+        missing_skills = [req_lower_map[k] for k in req_lower_map if k not in cv_lower_map]
+        if not matched_skills:
+            matched_skills = cv_list[:3]
+
+        primary_match = matched_skills[0] if matched_skills else "Python/Backend"
+        secondary_match = matched_skills[1] if len(matched_skills) > 1 else (cv_list[1] if len(cv_list) > 1 else "Database/Caching")
+        gap_skill = missing_skills[0] if missing_skills else "Kubernetes & Distributed Tracing"
+
+        # Check if live LLM is configured
+        llm_questions = []
+        if self.model_gateway.api_key:
+            try:
+                import json
+                system_prompt = (
+                    "Bạn là Trưởng ban Kỹ thuật (Engineering Director) tại công ty công nghệ hàng đầu Việt Nam.\n"
+                    "Nhiệm vụ: Dựa vào Kỹ năng thực tế từ CV và Bản mô tả công việc (JD), hãy tạo bộ câu hỏi phỏng vấn sát thực tế nhất.\n"
+                    "Mỗi câu hỏi phải đi kèm: skill_evaluated, cv_evidence_context (lý do hỏi dựa vào CV/JD), sample_star_answer (gợi ý trả lời theo STAR: Tình huống - Nhiệm vụ - Hành động - Kết quả), tips_for_candidate.\n"
+                    "Trả về JSON định dạng mảng: [{\"id\": \"q1\", \"category\": \"...\", \"question\": \"...\", \"skill_evaluated\": \"...\", \"cv_evidence_context\": \"...\", \"sample_star_answer\": \"...\", \"tips_for_candidate\": \"...\"}]"
+                )
+                user_prompt = (
+                    f"Vị trí tuyển dụng: {job_title}\n"
+                    f"Kỹ năng trong CV ứng viên: {', '.join(cv_list)}\n"
+                    f"Kỹ năng trùng khớp (Matched): {', '.join(matched_skills)}\n"
+                    f"Kỹ năng còn thiếu trong CV so với JD: {', '.join(missing_skills)}\n"
+                    f"Trích đoạn mô tả JD: {job_description[:600]}\n"
+                    f"Hãy tạo {num_questions} câu hỏi phỏng vấn chuẩn mực bằng Tiếng Việt."
+                )
+                resp = self.model_gateway.generate_text_sync(user_prompt, system_prompt=system_prompt, temperature=0.4)
+                match = re.search(r'\[\s*\{.*\}\s*\]', resp, re.DOTALL)
+                if match:
+                    parsed = json.loads(match.group(0))
+                    if isinstance(parsed, list) and len(parsed) > 0:
+                        llm_questions = parsed
+            except Exception:
+                llm_questions = []
+
+        if not llm_questions:
+            llm_questions = [
+                {
+                    "id": "cv_q_tech_deep",
+                    "category": "Kỹ thuật chuyên sâu (CV Skills)",
+                    "question": f"Trong CV bạn nêu có kinh nghiệm vững về {primary_match}. Đối với vị trí {job_title}, khi hệ thống chạm ngưỡng hàng trăm nghìn requests/phút, bạn sẽ tối ưu hóa I/O, connection pool và hạn chế nghẽn cổ chai (bottlenecks) như thế nào?",
+                    "skill_evaluated": f"{primary_match} High Concurrency & I/O",
+                    "cv_evidence_context": f"Kỹ năng '{primary_match}' được ghi nhận trong CV của bạn và là yêu cầu trọng tâm trong JD của nhà tuyển dụng.",
+                    "sample_star_answer": f"Tình huống: Hệ thống xử lý đơn hàng tại dự án trước bị nghẽn connection khi đạt 15,000 req/s.\nNhiệm vụ: Cần giảm độ trễ p99 từ 450ms xuống dưới 80ms mà không tốn thêm chi phí server.\nHành động: Tôi đã cấu hình lại async connection pool với {primary_match}, triển khai cache tầng nhớ Redis và tách luồng đọc/ghi cơ sở dữ liệu.\nKết quả: Giảm 65% latency p99, throughput tăng gấp 3 lần và hệ thống ổn định 99.99% uptime.",
+                    "tips_for_candidate": f"Nhấn mạnh các tham số cấu hình thực tế, công cụ đo benchmark và số liệu cụ thể bạn đã đạt được với {primary_match}."
+                },
+                {
+                    "id": "cv_q_architecture",
+                    "category": "Kiến trúc hệ thống & Tích hợp",
+                    "question": f"Dự án của nhà tuyển dụng đòi hỏi khả năng mở rộng với {secondary_match}. Hãy phân tích một quyết định kiến trúc khó nhất bạn từng đưa ra khi kết hợp {primary_match} và {secondary_match}?",
+                    "skill_evaluated": f"System Architecture ({primary_match} + {secondary_match})",
+                    "cv_evidence_context": f"Bạn đã làm việc với {secondary_match} trong các dự án trước, phù hợp với kiến trúc phân tán mà JD yêu cầu.",
+                    "sample_star_answer": f"Tình huống: Cần tích hợp dịch vụ xử lý dữ liệu lớn đồng bộ giữa các microservices.\nNhiệm vụ: Đảm bảo dữ liệu không bị thất thoát khi có sự cố mạng giữa các service.\nHành động: Tôi triển khai Outbox Pattern kết hợp {secondary_match} và cơ chế retry idempotent có exponential backoff.\nKết quả: Không còn trường hợp mất dữ liệu, tự động phục hồi trong vòng 5 giây khi node khởi động lại.",
+                    "tips_for_candidate": "Tập trung vào tính nhất quán dữ liệu (Data Consistency), idempotent và cách giải quyết failure modes."
+                },
+                {
+                    "id": "cv_q_gap_bridge",
+                    "category": "Kỹ năng mở rộng & Học hỏi (Skill Gap)",
+                    "question": f"JD tuyển dụng có yêu cầu về {gap_skill}. Dù kỹ năng này chưa được nhấn mạnh sâu trong CV của bạn, nền tảng {primary_match} hiện tại của bạn sẽ giúp bạn tiếp cận và làm chủ {gap_skill} trong 30-60 ngày đầu như thế nào?",
+                    "skill_evaluated": f"Adaptability & {gap_skill}",
+                    "cv_evidence_context": f"Kỹ năng '{gap_skill}' là điểm chênh lệch (gap) giữa CV của bạn và JD. Nhà tuyển dụng sẽ thử thách khả năng tự học của bạn.",
+                    "sample_star_answer": f"Tình huống: Khi công ty bắt đầu nâng cấp hạ tầng sang công nghệ mới tương tự {gap_skill}.\nNhiệm vụ: Tôi chủ động xây dựng PoC thử nghiệm trong 2 tuần trước khi áp dụng cho toàn team.\nHành động: Tận dụng hiểu biết về {primary_match} và containerization, tôi đọc kỹ RFC, viết unit test và benchmark hiệu năng.\nKết quả: Hoàn thành PoC đúng tiến độ và dẫn dắt team bàn giao dự án production thành công.",
+                    "tips_for_candidate": "Đừng giấu việc mình chưa thạo; hãy thể hiện tư duy nền tảng vững vàng, tinh thần cầu tiến và phương pháp tiếp cận công nghệ mới khoa học."
+                },
+                {
+                    "id": "cv_q_star_behavioral",
+                    "category": "Tình huống thực tế & Văn hóa (STAR)",
+                    "question": f"Hãy kể về một lần dự án gặp sự cố nghiêm trọng (P0 Incident) hoặc xung đột về mặt kỹ thuật giữa việc giao hàng nhanh (Velocity) và chất lượng mã nguồn (Code Quality) cho vị trí {job_title}?",
+                    "skill_evaluated": "Engineering Trade-offs & Ownership",
+                    "cv_evidence_context": "Vị trí Senior đòi hỏi tư duy làm chủ (ownership), khả năng thương lượng và giải quyết xung đột bằng dữ liệu.",
+                    "sample_star_answer": "Tình huống: Trước ngày ra mắt sản phẩm 3 ngày, phát hiện một query gây lock bảng người dùng.\nNhiệm vụ: Quyết định hoãn release hay vá tạm thời để kịp tiến độ kinh doanh.\nHành động: Tôi họp khẩn với Product Owner, đưa ra giải pháp trung gian: áp dụng read-replica và cache tạm thời, đồng thời lên lịch refactor ngay trong sprint kế tiếp.\nKết quả: Sản phẩm ra mắt đúng ngày thành công, zero downtime, và nợ kỹ thuật được giải quyết triệt để 1 tuần sau đó.",
+                    "tips_for_candidate": "Sử dụng cấu trúc STAR rõ ràng: Tình huống (S) -> Nhiệm vụ (T) -> Hành động cá nhân (A) -> Kết quả đo lường được (R)."
+                }
+            ]
+
+        return {
+            "job_title": job_title,
+            "matched_skills": matched_skills,
+            "missing_skills": missing_skills,
+            "questions": llm_questions[:num_questions],
+        }
+
     def evaluate_star_answer(
         self,
         question: str,

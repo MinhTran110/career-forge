@@ -46,27 +46,27 @@ async def test_market_hunter_tier_classification():
 
     agent = MarketHunterAgent(vector_tool=vtool)
 
-    # Candidate with full Python/FastAPI/PostgreSQL/Docker skills
-    candidate_skills = ["Python", "FastAPI", "PostgreSQL", "Docker", "Git"]
+    # Candidate with full Python/FastAPI/PostgreSQL/Docker/Linux skills
+    candidate_skills = ["Python", "FastAPI", "PostgreSQL", "Docker", "Linux", "RESTful API", "Redis"]
     ranked_jobs = agent.evaluate_and_rank_jobs(
         candidate_id=candidate_id,
         candidate_skills=candidate_skills,
     )
 
     assert len(ranked_jobs) > 0
-    # The FinFlow Backend Python role requires ["Python", "FastAPI", "PostgreSQL", "Docker", "Git"]
-    # All 5 skills matched -> 100% skill match ratio -> safe tier
-    finflow_job = next((j for j in ranked_jobs if "FinFlow" in j["company"]), None)
-    assert finflow_job is not None
-    assert finflow_job["tier"] == "safe"
-    assert finflow_job["match_score"] >= 80.0
-    assert len(finflow_job["missing_skills"]) == 0
+    # The Viettel Solutions role requires ["Python", "FastAPI", "PostgreSQL", "Docker", "Linux", "RESTful API", "Redis"]
+    # All skills matched -> safe tier
+    viettel_job = next((j for j in ranked_jobs if "Viettel" in j["company"]), None)
+    assert viettel_job is not None
+    assert viettel_job["tier"] == "safe"
+    assert viettel_job["match_score"] >= 74.0
+    assert len(viettel_job["missing_skills"]) == 0
 
-    # The Principal Distributed Systems role requires CUDA, Triton, Kafka, Rust -> reach tier
-    cloudmesh_job = next((j for j in ranked_jobs if "CloudMesh" in j["company"]), None)
-    assert cloudmesh_job is not None
-    assert cloudmesh_job["tier"] == "reach"
-    assert len(cloudmesh_job["missing_skills"]) > 3
+    # The FPT Software AI Platform role requires LLM, vLLM, Cloud Architect -> reach tier
+    fpt_job = next((j for j in ranked_jobs if "FPT" in j["company"]), None)
+    assert fpt_job is not None
+    assert fpt_job["tier"] == "reach"
+    assert len(fpt_job["missing_skills"]) >= 3
 
 
 @pytest.mark.asyncio

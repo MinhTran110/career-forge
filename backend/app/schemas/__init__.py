@@ -111,3 +111,29 @@ class InterviewSessionResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class GenerateQuestionsFromCvRequest(BaseModel):
+    job_id: str | None = None
+    job_title: str | None = None
+    job_description: str | None = None
+    cv_skills: list[str] = []
+    target_requirements: list[str] = []
+    num_questions: int = 4
+
+
+class InterviewQuestionItem(BaseModel):
+    id: str
+    category: str
+    question: str
+    skill_evaluated: str
+    cv_evidence_context: str
+    sample_star_answer: str
+    tips_for_candidate: str
+
+
+class GenerateQuestionsFromCvResponse(BaseModel):
+    job_title: str
+    matched_skills: list[str]
+    missing_skills: list[str]
+    questions: list[InterviewQuestionItem]

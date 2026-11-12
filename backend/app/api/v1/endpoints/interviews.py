@@ -10,12 +10,59 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.job import Job
+from app.models.profile import Profile
 from app.models.interview import InterviewSession
-from app.schemas import InterviewSessionCreate, AnswerSubmission, InterviewSessionResponse
+from app.schemas import (
+    InterviewSessionCreate,
+    AnswerSubmission,
+    InterviewSessionResponse,
+    GenerateQuestionsFromCvRequest,
+    GenerateQuestionsFromCvResponse,
+)
 from agent_engine.agents.star_interviewer import StarInterviewerAgent
 
 router = APIRouter()
 star_interviewer = StarInterviewerAgent()
+
+
+@router.post("/generate-questions-from-cv", response_model=GenerateQuestionsFromCvResponse)
+async def generate_questions_from_cv(
+    payload: GenerateQuestionsFromCvRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generates hyper-tailored interview questions cross-referencing candidate's CV skills with the target Job Description."""
+    job_title = payload.job_title or "Senior Software Engineer"
+    job_desc = payload.job_description or ""
+    requirements = list(payload.target_requirements)
+
+    if payload.job_id:
+        stmt = select(Job).where(Job.id == payload.job_id)
+        job = (await db.execute(stmt)).scalar_one_or_none()
+        if job:
+            job_title = job.title
+            job_desc = job.description or ""
+            requirements = job.requirements or job.tech_stack or []
+
+    # Retrieve candidate skills from Profile if not passed in payload
+    cv_skills = list(payload.cv_skills)
+    if not cv_skills:
+        p_stmt = select(Profile).where(Profile.user_id == current_user.id)
+        profile = (await db.execute(p_stmt)).scalar_one_or_none()
+        if profile and profile.skills:
+            cv_skills = profile.skills.get("verified", [])
+
+    if not cv_skills:
+        cv_skills = ["Python", "FastAPI", "Docker", "PostgreSQL", "Redis"]
+
+    result = star_interviewer.generate_interview_questions_from_cv_and_jd(
+        cv_skills=cv_skills,
+        job_title=job_title,
+        job_description=job_desc,
+        target_requirements=requirements,
+        num_questions=payload.num_questions,
+    )
+    return result
 
 
 @router.post("/session", response_model=InterviewSessionResponse)

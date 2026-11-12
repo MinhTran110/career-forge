@@ -106,3 +106,23 @@ async def test_interview_api_lifecycle():
         list_res = await client.get("/api/v1/interviews", headers=headers)
         assert list_res.status_code == 200
         assert any(s["id"] == session_id for s in list_res.json())
+
+        # 6. Generate Questions from CV & JD
+        cv_gen_res = await client.post(
+            "/api/v1/interviews/generate-questions-from-cv",
+            headers=headers,
+            json={
+                "job_title": "Senior Backend Engineer (VNG)",
+                "job_description": "Microservices architect with Python, FastAPI, Docker, and Redis.",
+                "cv_skills": ["Python", "FastAPI", "Docker", "PostgreSQL"],
+                "target_requirements": ["Python", "FastAPI", "Redis", "Kafka", "Kubernetes"],
+                "num_questions": 4,
+            },
+        )
+        assert cv_gen_res.status_code == 200, cv_gen_res.text
+        cv_q_data = cv_gen_res.json()
+        assert len(cv_q_data["questions"]) == 4
+        assert len(cv_q_data["matched_skills"]) > 0
+        assert "FastAPI" in cv_q_data["matched_skills"] or "Python" in cv_q_data["matched_skills"]
+        assert "skill_evaluated" in cv_q_data["questions"][0]
+        assert "sample_star_answer" in cv_q_data["questions"][0]

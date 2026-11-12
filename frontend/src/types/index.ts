@@ -96,4 +96,40 @@ export interface User {
   full_name?: string;
 }
 
+export interface InterviewQuestionItem {
+  id: string;
+  category: string;
+  question: string;
+  skill_evaluated: string;
+  cv_evidence_context: string;
+  sample_star_answer: string;
+  tips_for_candidate: string;
+  user_answer?: string;
+  star_evaluation?: {
+    situation_score: number;
+    task_score: number;
+    action_score: number;
+    result_score: number;
+    overall_score: number;
+    strengths: string[];
+    improvements: string[];
+    recommended_answer: string;
+  };
+}
+
+export interface GenerateQuestionsResponse {
+  job_title: string;
+  matched_skills: string[];
+  missing_skills: string[];
+  questions: InterviewQuestionItem[];
+}
+
+export interface ApiKeyStatus {
+  is_configured: boolean;
+  provider: string;
+  model: string;
+  masked_key: string;
+}
+
+
 
