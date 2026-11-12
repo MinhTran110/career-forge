@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { JobDetailPage } from '@/pages/JobDetailPage';
 import { ResumeEditorPage } from '@/pages/ResumeEditorPage';
 import { MockInterviewPage } from '@/pages/MockInterviewPage';
 import { AuthModal } from '@/components/auth/AuthModal';
@@ -9,7 +8,7 @@ import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import { Job, User } from '@/types';
 
 const MainApp: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'detail' | 'editor' | 'interview'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'editor' | 'interview'>('dashboard');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -27,17 +26,15 @@ const MainApp: React.FC = () => {
 
   const handleSelectJob = (job: Job) => {
     setSelectedJob(job);
-    setCurrentPage('detail');
+    setCurrentPage('editor'); // Direct 1-Click transition to ATS Studio!
   };
 
   const handleStepNavigation = (stepIndex: number) => {
-    if (stepIndex <= 1) {
+    if (stepIndex === 0) {
       setCurrentPage('dashboard');
-    } else if (stepIndex === 2) {
-      setCurrentPage('detail');
-    } else if (stepIndex === 3 || stepIndex === 4) {
+    } else if (stepIndex === 1 || stepIndex === 2) {
       setCurrentPage('editor');
-    } else if (stepIndex === 5) {
+    } else if (stepIndex === 3) {
       setCurrentPage('interview');
     }
   };
@@ -72,17 +69,6 @@ const MainApp: React.FC = () => {
               }`}
             >
               {t('nav.jobs')}
-            </button>
-
-            <button
-              onClick={() => setCurrentPage('detail')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                currentPage === 'detail'
-                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm shadow-sky-950 font-bold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
-              }`}
-            >
-              {t('nav.skills')}
             </button>
 
             <button
@@ -159,33 +145,10 @@ const MainApp: React.FC = () => {
         {currentPage === 'dashboard' && (
           <DashboardPage onSelectJob={handleSelectJob} onStepClick={handleStepNavigation} />
         )}
-        {currentPage === 'detail' && (
-          <JobDetailPage
-            job={selectedJob || {
-              id: 'job_sample',
-              title: 'Senior AI Infrastructure Engineer',
-              company: 'DeepScale AI',
-              location: 'Remote',
-              salary_range: '$140,000 - $180,000',
-              job_type: 'Remote',
-              url: 'https://example.com',
-              description: 'Architect high-throughput LLM serving platforms with FastAPI, Docker, and Redis.',
-              requirements: ['FastAPI', 'Python', 'Docker', 'Kubernetes', 'Redis'],
-              tech_stack: ['Python', 'FastAPI', 'Redis', 'Docker'],
-              matched_skills: ['Python', 'FastAPI', 'Redis', 'Docker'],
-              missing_skills: ['Kubernetes', 'vLLM'],
-              match_score: 86.5,
-              tier: 'safe',
-            }}
-            onBack={() => setCurrentPage('dashboard')}
-            onOptimize={() => setCurrentPage('editor')}
-            onStartInterview={() => setCurrentPage('interview')}
-          />
-        )}
         {currentPage === 'editor' && (
           <ResumeEditorPage
             job={selectedJob}
-            onBack={() => setCurrentPage('detail')}
+            onBack={() => setCurrentPage('dashboard')}
             onNextToInterview={() => setCurrentPage('interview')}
           />
         )}

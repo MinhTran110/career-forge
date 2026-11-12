@@ -2,6 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { MarkdownSplitView } from '@/components/editor/MarkdownSplitView';
 import { AtsKeywordHighlight } from '@/components/editor/AtsKeywordHighlight';
 import { Button } from '@/components/common/Button';
+import { AgentDebateStream } from '@/components/pipeline/AgentDebateStream';
+import { useAgentStream } from '@/hooks/use-agent-stream';
+import { useLanguage } from '@/context/LanguageContext';
 import { Job } from '@/types';
 
 interface TransformationItem {
@@ -19,11 +22,15 @@ export const ResumeEditorPage: React.FC<{
   onBack: () => void;
   onNextToInterview?: () => void;
 }> = ({ job, onBack, onNextToInterview }) => {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [userPrompt, setUserPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [agentFeedback, setAgentFeedback] = useState<string | null>(null);
   const [scoreDelta, setScoreDelta] = useState<string | null>(null);
+  const [showDebateStream, setShowDebateStream] = useState(true);
+  const [workflowId, setWorkflowId] = useState<string>(job ? `tailor_${job.id}` : 'tailor_session');
+  const { events, isConnected } = useAgentStream(workflowId);
 
   const [content, setContent] = useState<string>(`# Senior AI Engineer Resume
 **Email**: alex.engineer@careerforge.dev | **GitHub**: github.com/MinhTran110
@@ -334,27 +341,50 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
         >
           <span>←</span>
-          <span>Quay lại Đánh giá kỹ năng</span>
+          <span>{t('resume.back_jobs')}</span>
         </button>
 
         <div className="text-xs text-slate-400 font-medium">
-          Bước 3: Tối ưu hóa CV theo tin tuyển dụng
+          {t('resume.step_badge')}
         </div>
       </div>
 
-      {/* Hero Header */}
+      {/* Target Job Header Card */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-6 shadow-xl">
-        <div>
-          <span className="text-xs text-sky-400 font-bold uppercase tracking-wider">
-            Công việc mục tiêu: {job?.title || 'Principal Distributed Systems Engineer'} ({job?.company || 'DeepInfra Global'})
-          </span>
-          <h1 className="text-2xl font-black text-white mt-1">Xưởng Tối Ưu Hóa CV Theo Nhà Tuyển Dụng</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Đã đối chiếu xác thực 100% với kinh nghiệm thật của bạn •{' '}
-            <span className="text-emerald-400 font-bold">Không chém gió, không bịa đặt</span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-sky-400 font-extrabold uppercase tracking-wider">
+              {job?.company || 'DeepInfra Global'}
+            </span>
+            {job?.tier && (
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                job.tier === 'safe'
+                  ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                  : job.tier === 'reach'
+                  ? 'border-purple-500/40 bg-purple-500/10 text-purple-400'
+                  : 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+              }`}>
+                {job.tier.toUpperCase()} TIER
+              </span>
+            )}
+          </div>
+          <h1 className="text-2xl font-black text-white">{job?.title || 'Principal Distributed Systems Engineer'}</h1>
+          <p className="text-xs text-slate-400">
+            {t('resume.sub')}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => setShowDebateStream((prev) => !prev)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+              showDebateStream
+                ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            <span>⚡</span>
+            <span>{showDebateStream ? 'Ẩn luồng Agent Swarm' : 'Hiện luồng Agent Swarm'}</span>
+          </button>
           <Button variant="secondary" onClick={handleCopy} className="cursor-pointer text-xs">
             {copied ? '✓ Đã sao chép!' : '📋 Sao chép CV'}
           </Button>
@@ -363,6 +393,66 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           </Button>
         </div>
       </div>
+
+      {/* Target JD Skill Gap & Grounding Summary Bar */}
+      <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5 shadow-lg">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <span>🎯 {t('resume.skill_analysis')}</span>
+            </span>
+            <span className="text-[11px] text-slate-400">
+              (Bấm vào kỹ năng cần lưu ý để tự động điền lệnh yêu cầu AI tối ưu)
+            </span>
+          </div>
+          <span className="text-xs text-slate-400 font-mono">
+            Độ phủ kỹ năng: <strong className="text-sky-400 font-bold">{stats.coveragePercent}%</strong> ({stats.matched.length}/{targetSkills.length} kỹ năng)
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          {/* Matched skills */}
+          {stats.matched.map((skill) => (
+            <span
+              key={skill}
+              className="text-xs px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-semibold flex items-center gap-1"
+              title={t('resume.verified_skills')}
+            >
+              <span>✓</span> {skill}
+            </span>
+          ))}
+
+          {/* Missing/Gap skills with auto-fill prompt */}
+          {stats.missing.map((skill) => (
+            <button
+              key={skill}
+              type="button"
+              onClick={() => {
+                setUserPrompt(`Nhấn mạnh kinh nghiệm và giải pháp liên quan đến ${skill} bằng các công cụ đã được chứng minh...`);
+              }}
+              className="text-xs px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 font-semibold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-sm"
+              title="Bấm để ra lệnh AI tập trung vào kỹ năng này"
+            >
+              <span>⚠️</span>
+              <span>{skill}</span>
+              <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded font-normal">
+                {t('resume.gap_skills')}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Embedded Live Multi-Agent Swarm Debate Stream */}
+      {showDebateStream && (
+        <div className="animate-fadeIn">
+          <AgentDebateStream
+            events={events}
+            isConnected={isConnected}
+            onRerun={() => setWorkflowId(`tailor_${job?.id || 'job'}_${Date.now()}`)}
+          />
+        </div>
+      )}
 
       {/* AI Prompt Console (Interactive Multi-Agent Steering) */}
       <div className="bg-gradient-to-r from-slate-900 via-slate-900/95 to-indigo-950/40 border border-indigo-500/30 rounded-2xl p-5 shadow-xl space-y-3">
@@ -601,21 +691,22 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           onClick={onBack}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer"
         >
-          <span>← Quay lại Đánh giá kỹ năng</span>
+          <span>←</span>
+          <span>{t('resume.back_jobs')}</span>
         </button>
 
         <div className="flex items-center gap-3">
           <Button variant="secondary" onClick={handleDownloadPdf} className="cursor-pointer text-xs">
-            📄 Tải CV về máy (.md)
+            📄 {t('resume.download')}
           </Button>
 
           {onNextToInterview && (
             <Button
               variant="primary"
               onClick={onNextToInterview}
-              className="cursor-pointer inline-flex items-center gap-2 text-xs"
+              className="cursor-pointer inline-flex items-center gap-2 text-xs shadow-md shadow-sky-500/20"
             >
-              <span>Tiếp theo: Luyện phỏng vấn thử (Tùy chọn)</span>
+              <span>{t('resume.to_interview')}</span>
               <span>→</span>
             </Button>
           )}

@@ -54,55 +54,37 @@ export const AgentStepper: React.FC<AgentStepperProps> = ({
       id: 'radar',
       title: t('step.1.title'),
       desc: t('step.1.desc'),
-      agent: 'Specialist #1: Market Hunter',
-      detailsVi: 'Quét và đối chiếu hơn 50 tin tuyển dụng từ thị trường dựa trên hồ sơ đã xác thực của ứng viên, phân loại theo 3 mức độ (Vừa sức, Mục tiêu, Thử thách).',
-      detailsEn: 'Scans & matches real-time jobs against verified candidate skills into 3 tiers (Safe, Target, Reach).',
+      agent: 'Specialist #1: Candidate Profiler & Market Hunter',
+      detailsVi: 'Trích xuất văn bản từ CV/Ảnh (OCR) và GitHub GraphQL, nạp bằng chứng vào Qdrant Vector Lake và quét đối chiếu việc làm theo 3 mức độ (Vừa sức, Mục tiêu, Thử thách).',
+      detailsEn: 'Extracts CV claims & audits GitHub repositories into Qdrant Vector Lake, scanning real-time jobs into 3 match tiers.',
       targetPage: 0, // Dashboard
     },
     {
-      id: 'profiler',
+      id: 'swarm',
       title: t('step.2.title'),
       desc: t('step.2.desc'),
-      agent: 'Specialist #2: Candidate Profiler',
-      detailsVi: 'Trích xuất văn bản từ CV (PDF/Ảnh) và đối chiếu với mã nguồn GitHub, nạp các đoạn trích dẫn vào Vector Lake để làm căn cứ thật.',
-      detailsEn: 'Extracts CV claims, audits GitHub repositories, and indexes atomic ground-truth text chunks into Qdrant Vector Lake.',
-      targetPage: 0, // Dashboard profile section
+      agent: 'Specialist #2: Actor-Critic Swarm',
+      detailsVi: 'Resume Strategist (Actor) và Fact Checker (Critic) tranh luận trực tiếp: phát hiện và loại bỏ ảo giác, kiểm toán từng số liệu với Vector Lake.',
+      detailsEn: 'Live debate between Resume Strategist and Fact Checker (Critic Auditor) eliminating hallucinations against verified evidence.',
+      targetPage: 1, // Resume Studio (Editor)
     },
     {
-      id: 'skills',
+      id: 'studio',
       title: t('step.3.title'),
       desc: t('step.3.desc'),
-      agent: 'Specialist #3: Skill Strategist',
-      detailsVi: 'Phát hiện khoảng trống kỹ năng so với JD mục tiêu và tự động thiết kế đề xuất bài tập thực chiến 48 giờ để bổ sung vào hồ sơ.',
-      detailsEn: 'Identifies critical missing skills and architects a 48-hour tactical sprint capstone to close the gap on GitHub.',
-      targetPage: 1, // Job Detail
-    },
-    {
-      id: 'resume',
-      title: t('step.4.title'),
-      desc: t('step.4.desc'),
-      agent: 'Specialist #4: Resume Strategist',
-      detailsVi: 'Viết lại các gạch đầu dòng kinh nghiệm theo công thức chuẩn Google X-Y-Z (Đạt được X bằng cách Y làm Z) với mật độ từ khóa tối ưu.',
-      detailsEn: 'Synthesizes bullet points using the Google X-Y-Z formula with high metric density tailored to the job description.',
-      targetPage: 2, // Resume Studio
-    },
-    {
-      id: 'audit',
-      title: t('step.5.title'),
-      desc: t('step.5.desc'),
-      agent: 'Specialist #5: Fact Checker & Critic',
-      detailsVi: 'Kiểm tra chéo từng câu trong CV với Vector Lake. Loại bỏ hoàn toàn ảo giác hoặc thông tin phóng đại, bảo đảm 100% sự thật.',
-      detailsEn: 'Audits every claim against Qdrant Vector Lake. Rejects hallucinations and guarantees 100% verified factual integrity.',
-      targetPage: 2, // Resume Studio Audit tab
+      agent: 'Specialist #3: ATS Resume Studio',
+      detailsVi: 'Biên soạn các gạch đầu dòng kinh nghiệm theo công thức Google X-Y-Z chuẩn ATS, đối chiếu bảng Before vs After Diff và xuất Markdown.',
+      detailsEn: 'Synthesizes bullet points using Google X-Y-Z formula, displays Before vs After Diff, and exports ATS Markdown.',
+      targetPage: 1, // Resume Studio (Editor)
     },
     {
       id: 'interview',
-      title: t('step.6.title'),
-      desc: t('step.6.desc'),
-      agent: 'Specialist #6: STAR Interviewer',
-      detailsVi: 'Tạo câu hỏi phỏng vấn kỹ thuật và tình huống sát với JD, đánh giá câu trả lời theo rubric STAR (Tình huống - Nhiệm vụ - Hành động - Kết quả).',
-      detailsEn: 'Generates behavioral & technical questions tailored to the job and evaluates responses using STAR rubric scoring.',
-      targetPage: 3, // Mock Interview
+      title: t('step.4.title'),
+      desc: t('step.4.desc'),
+      agent: 'Specialist #4: STAR Interview Coach',
+      detailsVi: 'Phòng luyện phỏng vấn kỹ thuật sát theo JD, đánh giá câu trả lời theo rubric 4 trụ cột STAR (Situation, Task, Action, Result).',
+      detailsEn: 'Technical mock interview simulator with real-time scoring across the 4 STAR pillars (Situation, Task, Action, Result).',
+      targetPage: 2, // Mock Interview
     },
   ];
 

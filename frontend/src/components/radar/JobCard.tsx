@@ -2,13 +2,17 @@ import React from 'react';
 import { Job } from '@/types';
 import { MatchScoreGauge } from './MatchScoreGauge';
 import { Badge } from '../common/Badge';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface JobCardProps {
   job: Job;
   onSelect: (job: Job) => void;
+  onQuickView?: (job: Job) => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onSelect }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onSelect, onQuickView }) => {
+  const { t, language } = useLanguage();
+
   const tierColor =
     job.tier === 'safe'
       ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
@@ -17,7 +21,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect }) => {
       : 'border-amber-500/40 bg-amber-500/10 text-amber-400';
 
   const tierLabel =
-    job.tier === 'safe' ? 'Safe Tier' : job.tier === 'reach' ? 'Reach Tier' : 'Target Tier';
+    job.tier === 'safe'
+      ? (language === 'vi' ? 'Vừa sức' : 'Safe Tier')
+      : job.tier === 'reach'
+      ? (language === 'vi' ? 'Thử thách' : 'Reach Tier')
+      : (language === 'vi' ? 'Mục tiêu' : 'Target Tier');
 
   return (
     <div className="bg-slate-900/90 border border-slate-800/90 hover:border-sky-500/50 p-5 rounded-2xl transition-all shadow-xl hover:shadow-2xl hover:shadow-sky-950/50 flex flex-col sm:flex-row justify-between items-start gap-4 group">
@@ -25,7 +33,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect }) => {
         <div className="flex flex-wrap items-center gap-2">
           <Badge label={job.job_type} variant="info" />
           {job.tier && (
-            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${tierColor}`}>
+            <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${tierColor}`}>
               {tierLabel}
             </span>
           )}
@@ -56,13 +64,24 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect }) => {
       </div>
       <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-2 sm:pt-0">
         <MatchScoreGauge score={job.match_score} />
-        <button
-          onClick={() => onSelect(job)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500/15 to-indigo-500/15 hover:from-sky-500/30 hover:to-indigo-500/30 text-sky-300 hover:text-white border border-sky-500/40 hover:border-sky-400/80 text-xs font-bold transition-all shadow-md shadow-sky-950/40 cursor-pointer active:scale-95"
-        >
-          <span>View Details</span>
-          <span className="text-sm transition-transform group-hover:translate-x-1">→</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {onQuickView && (
+            <button
+              onClick={() => onQuickView(job)}
+              className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
+              title={t('dash.quick_view')}
+            >
+              👁️
+            </button>
+          )}
+          <button
+            onClick={() => onSelect(job)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-extrabold text-xs transition-all shadow-md shadow-sky-500/20 hover:shadow-sky-500/40 cursor-pointer active:scale-95"
+          >
+            <span>⚡ {t('dash.tailor_now')}</span>
+            <span className="text-sm transition-transform group-hover:translate-x-1">→</span>
+          </button>
+        </div>
       </div>
     </div>
   );

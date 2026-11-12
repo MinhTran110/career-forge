@@ -67,6 +67,8 @@ export const DashboardPage: React.FC<{
     }
   };
 
+  const [quickViewJob, setQuickViewJob] = useState<Job | null>(null);
+
   const filteredJobs = jobs.filter((job) => {
     if (activeTier === 'all') return true;
     return (job.tier || '').toLowerCase() === activeTier.toLowerCase();
@@ -108,7 +110,7 @@ export const DashboardPage: React.FC<{
       </div>
 
       {/* Stepper Navigation */}
-      <AgentStepper currentStepIndex={1} onNavigateToStep={onStepClick} />
+      <AgentStepper currentStepIndex={0} onNavigateToStep={onStepClick} />
 
       {/* Candidate Profiler & Ground-Truth Card */}
       <CandidateProfileCard profile={profile} onProfileUpdated={handleProfileUpdated} />
@@ -163,7 +165,12 @@ export const DashboardPage: React.FC<{
             </div>
           ) : (
             filteredJobs.map((job) => (
-              <JobCard key={job.id} job={job} onSelect={onSelectJob} />
+              <JobCard
+                key={job.id}
+                job={job}
+                onSelect={onSelectJob}
+                onQuickView={(j) => setQuickViewJob(j)}
+              />
             ))
           )}
         </div>
@@ -184,6 +191,80 @@ export const DashboardPage: React.FC<{
         onClose={() => setIsCustomJdOpen(false)}
         onJobCreated={handleCustomJobCreated}
       />
+
+      {/* Quick View Job Modal */}
+      {quickViewJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-start border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-xs text-sky-400 font-extrabold uppercase tracking-wider">{quickViewJob.company}</span>
+                <h3 className="text-xl font-bold text-white mt-1">{quickViewJob.title}</h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {quickViewJob.location} • <span className="text-slate-300 font-semibold">{quickViewJob.salary_range}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setQuickViewJob(null)}
+                className="text-slate-400 hover:text-white p-1 text-base cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold uppercase text-slate-400 mb-1.5">Mô tả công việc:</h4>
+              <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
+                {quickViewJob.description}
+              </p>
+            </div>
+
+            {quickViewJob.requirements && quickViewJob.requirements.length > 0 && (
+              <div>
+                <h4 className="text-xs font-bold uppercase text-slate-400 mb-1.5">Yêu cầu chính:</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {quickViewJob.requirements.map((req, i) => (
+                    <span key={i} className="text-[11px] px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-300 font-medium">
+                      ✓ {req}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <h4 className="text-xs font-bold uppercase text-slate-400 mb-1.5">Tech Stack:</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {quickViewJob.tech_stack.map((tech) => (
+                  <span key={tech} className="text-[11px] px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-mono">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+              <button
+                onClick={() => setQuickViewJob(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+              >
+                Đóng
+              </button>
+              <button
+                onClick={() => {
+                  const j = quickViewJob;
+                  setQuickViewJob(null);
+                  onSelectJob(j);
+                }}
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-extrabold shadow-lg shadow-sky-500/30 cursor-pointer flex items-center gap-2"
+              >
+                <span>⚡ {t('dash.tailor_now')}</span>
+                <span>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
