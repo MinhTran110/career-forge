@@ -52,6 +52,17 @@ class JobHunterTool:
             "requirements": ["Python", "FastAPI", "PostgreSQL", "Docker", "Git"],
             "tech_stack": ["Python", "FastAPI", "PostgreSQL", "Docker"],
         },
+        {
+            "title": "Principal Distributed Systems Engineer",
+            "company": "DeepInfra Global",
+            "location": "Remote",
+            "salary_range": "$160,000 - $200,000",
+            "job_type": "Remote",
+            "url": "https://deepinfra.com/careers/principal-distributed-systems",
+            "description": "Looking for deep expertise in Python, FastAPI, Docker, and Redis microservices with high RPS.",
+            "requirements": ["Python", "FastAPI", "Docker", "Redis", "Microservices"],
+            "tech_stack": ["Docker", "FastAPI", "Microservices", "Python", "Redis"],
+        },
     ]
 
     @staticmethod

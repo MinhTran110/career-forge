@@ -198,7 +198,34 @@ export const DashboardPage: React.FC<{
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-start border-b border-slate-800 pb-4">
               <div>
-                <span className="text-xs text-sky-400 font-extrabold uppercase tracking-wider">{quickViewJob.company}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-sky-400 font-extrabold uppercase tracking-wider">{quickViewJob.company}</span>
+                  {quickViewJob.url && !quickViewJob.url.includes('custom-jd.careerforge.dev') ? (
+                    <a
+                      href={quickViewJob.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-300 hover:text-white bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 px-2 py-0.5 rounded-full transition-all"
+                      title={quickViewJob.url}
+                    >
+                      <span>🌐</span>
+                      <span>
+                        {(() => {
+                          try {
+                            return new URL(quickViewJob.url).hostname.replace('www.', '');
+                          } catch {
+                            return 'careers-portal';
+                          }
+                        })()}
+                      </span>
+                      <span className="text-[10px]">↗</span>
+                    </a>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 font-medium">
+                      📋 Tin tự nhập (Custom JD)
+                    </span>
+                  )}
+                </div>
                 <h3 className="text-xl font-bold text-white mt-1">{quickViewJob.title}</h3>
                 <p className="text-xs text-slate-400 mt-0.5">
                   {quickViewJob.location} • <span className="text-slate-300 font-semibold">{quickViewJob.salary_range}</span>
@@ -243,24 +270,48 @@ export const DashboardPage: React.FC<{
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
-              <button
-                onClick={() => setQuickViewJob(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
-              >
-                Đóng
-              </button>
-              <button
-                onClick={() => {
-                  const j = quickViewJob;
-                  setQuickViewJob(null);
-                  onSelectJob(j);
-                }}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-extrabold shadow-lg shadow-sky-500/30 cursor-pointer flex items-center gap-2"
-              >
-                <span>⚡ {t('dash.tailor_now')}</span>
-                <span>→</span>
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800">
+              {quickViewJob.url && !quickViewJob.url.includes('custom-jd.careerforge.dev') ? (
+                <a
+                  href={quickViewJob.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-sky-400 hover:text-sky-200 border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <span>🌐 Mở bài đăng tuyển dụng gốc</span>
+                  <span>↗</span>
+                </a>
+              ) : (
+                <a
+                  href={`https://www.google.com/search?q=${encodeURIComponent(`${quickViewJob.company} ${quickViewJob.title} careers jobs`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <span>🔍 Tìm kiếm bài đăng trên Google</span>
+                  <span>↗</span>
+                </a>
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setQuickViewJob(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                >
+                  Đóng
+                </button>
+                <button
+                  onClick={() => {
+                    const j = quickViewJob;
+                    setQuickViewJob(null);
+                    onSelectJob(j);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-extrabold shadow-lg shadow-sky-500/30 cursor-pointer flex items-center gap-2"
+                >
+                  <span>⚡ {t('dash.tailor_now')}</span>
+                  <span>→</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

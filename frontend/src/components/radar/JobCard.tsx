@@ -27,6 +27,34 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect, onQuickView }) 
       ? (language === 'vi' ? 'Thử thách' : 'Reach Tier')
       : (language === 'vi' ? 'Mục tiêu' : 'Target Tier');
 
+  const getSourceMeta = () => {
+    if (!job.url || job.url.includes('custom-jd.careerforge.dev')) {
+      const isCustom = job.url?.includes('custom-jd.careerforge.dev');
+      return {
+        label: isCustom ? (language === 'vi' ? 'Tin tự nhập (Custom JD)' : 'Custom JD') : `${job.company.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
+        href: isCustom ? undefined : `https://www.google.com/search?q=${encodeURIComponent(`${job.company} ${job.title} job posting`)}`,
+        isCustom,
+      };
+    }
+    try {
+      const parsed = new URL(job.url);
+      const domain = parsed.hostname.replace('www.', '');
+      return {
+        label: domain,
+        href: job.url,
+        isCustom: false,
+      };
+    } catch {
+      return {
+        label: 'careers-portal',
+        href: job.url,
+        isCustom: false,
+      };
+    }
+  };
+
+  const sourceMeta = getSourceMeta();
+
   return (
     <div className="bg-slate-900/90 border border-slate-800/90 hover:border-sky-500/50 p-5 rounded-2xl transition-all shadow-xl hover:shadow-2xl hover:shadow-sky-950/50 flex flex-col sm:flex-row justify-between items-start gap-4 group">
       <div className="space-y-2.5 max-w-xl">
@@ -40,6 +68,27 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect, onQuickView }) 
           {job.location && job.location.toLowerCase() !== job.job_type.toLowerCase() && (
             <span className="text-xs text-slate-400">• {job.location}</span>
           )}
+
+          {/* Transparent Source Link */}
+          {sourceMeta.href ? (
+            <a
+              href={sourceMeta.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-400 hover:text-sky-200 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 px-2 py-0.5 rounded-full transition-all cursor-pointer shadow-sm group/link"
+              title={`Mở bài tuyển dụng gốc: ${sourceMeta.href}`}
+            >
+              <span>🌐</span>
+              <span>{sourceMeta.label}</span>
+              <span className="text-[10px] group-hover/link:translate-x-0.5 transition-transform">↗</span>
+            </a>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 bg-slate-800/80 border border-slate-700/60 px-2.5 py-0.5 rounded-full">
+              <span>📋</span>
+              <span>{sourceMeta.label}</span>
+            </span>
+          )}
         </div>
         <h3
           className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors cursor-pointer"
@@ -47,8 +96,26 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect, onQuickView }) 
         >
           {job.title}
         </h3>
-        <p className="text-sm font-medium text-slate-300">
-          <span className="text-sky-400 font-semibold">{job.company}</span> • {job.salary_range}
+        <p className="text-sm font-medium text-slate-300 flex flex-wrap items-center gap-2">
+          <span className="text-sky-400 font-semibold">{job.company}</span>
+          <span>•</span>
+          <span>{job.salary_range}</span>
+          {sourceMeta.href && (
+            <>
+              <span className="text-slate-500">•</span>
+              <a
+                href={sourceMeta.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs text-sky-400 hover:text-sky-200 underline underline-offset-2 flex items-center gap-0.5 cursor-pointer font-semibold"
+                title="Mở bài tuyển dụng gốc"
+              >
+                <span>Xem tin gốc</span>
+                <span className="text-[11px]">↗</span>
+              </a>
+            </>
+          )}
         </p>
         <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{job.description}</p>
         <div className="flex flex-wrap gap-1.5 pt-1.5">

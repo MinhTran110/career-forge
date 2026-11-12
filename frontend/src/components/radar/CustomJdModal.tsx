@@ -13,6 +13,7 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
   const [company, setCompany] = useState('');
   const [salary, setSalary] = useState('$120,000 - $160,000');
   const [location, setLocation] = useState('Remote');
+  const [url, setUrl] = useState('');
   const [description, setDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +36,7 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
         description: description.trim(),
         salary_range: salary.trim(),
         location: location.trim(),
+        url: url.trim() || undefined,
       });
       onJobCreated(newJob);
       onClose();
@@ -113,6 +115,19 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-500 text-xs text-white outline-none"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
+              Link bài đăng gốc (URL trên LinkedIn, Indeed, TopCV... - Tùy chọn)
+            </label>
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://www.linkedin.com/jobs/view/..."
+              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-500 text-xs text-white outline-none"
+            />
           </div>
 
           <div>
