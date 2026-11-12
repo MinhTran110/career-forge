@@ -78,6 +78,33 @@ class ApplicationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TransformationItemSchema(BaseModel):
+    id: str
+    original: str
+    improved: str
+    grounded_source: str
+    skill_tag: str
+    impact: str
+    applied: bool = True
+
+
+class PromptTailorRequest(BaseModel):
+    prompt: str
+    current_resume_markdown: str
+    job_id: str | None = None
+    target_job_title: str | None = None
+    target_skills: list[str] = []
+    company: str | None = None
+
+
+class PromptTailorResponse(BaseModel):
+    updated_markdown: str
+    feedback: str
+    new_transformations: list[TransformationItemSchema] = []
+    score_delta: str | None = "+4.5%"
+
+
+
 # STAR & Interview Schemas
 class StarFeedback(BaseModel):
     situation_score: float

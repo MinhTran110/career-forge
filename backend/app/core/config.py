@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     # AI Model Keys (Google AI Studio as primary zero-cost provider)
     MODEL_PROVIDER: str = "gemini"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-3.1-flash-lite"
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
     FIRECRAWL_API_KEY: str = ""

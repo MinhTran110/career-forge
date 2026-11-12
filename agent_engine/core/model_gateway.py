@@ -134,7 +134,7 @@ class AnthropicClient(BaseLLMClient):
 class GeminiClient(BaseLLMClient):
     """Google AI Studio (Gemini) REST API client - Primary zero-cost provider."""
 
-    def __init__(self, api_key: str, model: str = "gemini-1.5-flash"):
+    def __init__(self, api_key: str, model: str = "gemini-3.1-flash-lite"):
         self.api_key = api_key
         self.model = model
 
@@ -225,12 +225,12 @@ class ModelGateway:
             or ""
         )
         self.base_url = base_url or os.getenv("LOCAL_LLM_URL") or "http://localhost:8000/v1"
-        self.model_name = model_name or os.getenv("GEMINI_MODEL") or settings_model or "gemini-1.5-flash"
+        self.model_name = model_name or os.getenv("GEMINI_MODEL") or settings_model or "gemini-3.1-flash-lite"
 
         self.primary_client = self._resolve_client()
         self.fallback_client = FallbackHeuristicClient()
 
-    def update_api_key(self, api_key: str, provider: str = "gemini", model_name: str = "gemini-1.5-flash") -> None:
+    def update_api_key(self, api_key: str, provider: str = "gemini", model_name: str = "gemini-3.1-flash-lite") -> None:
         """Dynamically hot-reloads the LLM provider and credentials at runtime."""
         self.api_key = api_key
         self.provider = provider.lower()
@@ -242,7 +242,7 @@ class ModelGateway:
         # 1. Primary: Google AI Studio (Gemini) - Generous Free Tier
         gemini_key = (self.api_key if self.provider == "gemini" else "") or os.getenv("GEMINI_API_KEY")
         if gemini_key:
-            return GeminiClient(api_key=gemini_key, model=self.model_name or "gemini-1.5-flash")
+            return GeminiClient(api_key=gemini_key, model=self.model_name or "gemini-3.1-flash-lite")
 
         # 2. Local vLLM / Ollama (Self-hosted Zero-Cost GPU)
         if self.provider in ("local", "vllm", "ollama"):

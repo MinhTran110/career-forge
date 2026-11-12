@@ -215,4 +215,36 @@ export const submitInterviewAnswer = async (sessionId: string, questionIndex: nu
   return response.data;
 };
 
+export interface PromptTailorResponse {
+  updated_markdown: string;
+  feedback: string;
+  new_transformations: Array<{
+    id: string;
+    original: string;
+    improved: string;
+    grounded_source: string;
+    skill_tag: string;
+    impact: string;
+    applied: boolean;
+  }>;
+  score_delta: string | null;
+}
+
+export const promptTailorResume = async (payload: {
+  prompt: string;
+  current_resume_markdown: string;
+  job_id?: string;
+  target_job_title?: string;
+  target_skills?: string[];
+  company?: string;
+}): Promise<PromptTailorResponse> => {
+  await ensureAuthenticated();
+  const response = await apiClient.post<PromptTailorResponse>(
+    '/applications/prompt-tailor',
+    payload
+  );
+  return response.data;
+};
+
+
 
