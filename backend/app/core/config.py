@@ -1,4 +1,5 @@
 
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -53,3 +54,12 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Propagate AI credentials into environment variables for Agent Swarm
+if settings.GEMINI_API_KEY and not os.getenv("GEMINI_API_KEY"):
+    os.environ["GEMINI_API_KEY"] = settings.GEMINI_API_KEY
+if settings.MODEL_PROVIDER and not os.getenv("MODEL_PROVIDER"):
+    os.environ["MODEL_PROVIDER"] = settings.MODEL_PROVIDER
+if settings.GEMINI_MODEL and not os.getenv("GEMINI_MODEL"):
+    os.environ["GEMINI_MODEL"] = settings.GEMINI_MODEL
+

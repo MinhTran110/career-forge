@@ -2,9 +2,21 @@ import asyncio
 import json
 import logging
 import os
+from pathlib import Path
 import re
 from abc import ABC, abstractmethod
 from typing import Any, Type, TypeVar
+
+try:
+    from dotenv import load_dotenv
+    _backend_env = Path(__file__).resolve().parents[2] / "backend" / ".env"
+    _root_env = Path(__file__).resolve().parents[2] / ".env"
+    if _backend_env.exists():
+        load_dotenv(_backend_env)
+    if _root_env.exists():
+        load_dotenv(_root_env)
+except Exception:
+    pass
 
 import httpx
 from pydantic import BaseModel
@@ -191,10 +203,29 @@ class ModelGateway:
         base_url: str | None = None,
         model_name: str | None = None,
     ):
-        self.provider = (provider or os.getenv("MODEL_PROVIDER") or "gemini").lower()
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY") or ""
+        # Check settings as fallback
+        settings_key = ""
+        settings_provider = ""
+        settings_model = ""
+        try:
+            from app.core.config import settings
+            settings_key = getattr(settings, "GEMINI_API_KEY", "")
+            settings_provider = getattr(settings, "MODEL_PROVIDER", "")
+            settings_model = getattr(settings, "GEMINI_MODEL", "")
+        except Exception:
+            pass
+
+        self.provider = (provider or os.getenv("MODEL_PROVIDER") or settings_provider or "gemini").lower()
+        self.api_key = (
+            api_key
+            or os.getenv("GEMINI_API_KEY")
+            or settings_key
+            or os.getenv("OPENAI_API_KEY")
+            or os.getenv("ANTHROPIC_API_KEY")
+            or ""
+        )
         self.base_url = base_url or os.getenv("LOCAL_LLM_URL") or "http://localhost:8000/v1"
-        self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        self.model_name = model_name or os.getenv("GEMINI_MODEL") or settings_model or "gemini-1.5-flash"
 
         self.primary_client = self._resolve_client()
         self.fallback_client = FallbackHeuristicClient()
@@ -209,7 +240,7 @@ class ModelGateway:
 
     def _resolve_client(self) -> BaseLLMClient:
         # 1. Primary: Google AI Studio (Gemini) - Generous Free Tier
-        gemini_key = os.getenv("GEMINI_API_KEY") or (self.api_key if self.provider == "gemini" else "")
+        gemini_key = (self.api_key if self.provider == "gemini" else "") or os.getenv("GEMINI_API_KEY")
         if gemini_key:
             return GeminiClient(api_key=gemini_key, model=self.model_name or "gemini-1.5-flash")
 
