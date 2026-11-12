@@ -3,18 +3,15 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { ResumeEditorPage } from '@/pages/ResumeEditorPage';
 import { MockInterviewPage } from '@/pages/MockInterviewPage';
 import { AuthModal } from '@/components/auth/AuthModal';
-import { ApiKeyModal } from '@/components/common/ApiKeyModal';
-import { getCurrentUser, getApiKeyStatus } from '@/services/api';
+import { getCurrentUser } from '@/services/api';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
-import { ApiKeyStatus, Job, User } from '@/types';
+import { Job, User } from '@/types';
 
 const MainApp: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'editor' | 'interview'>('dashboard');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isApiKeyOpen, setIsApiKeyOpen] = useState(false);
-  const [apiKeyStatus, setApiKeyStatus] = useState<ApiKeyStatus | null>(null);
   const { language, setLanguage, t } = useLanguage();
 
   const fetchUser = () => {
@@ -23,15 +20,8 @@ const MainApp: React.FC = () => {
       .catch(() => setCurrentUser(null));
   };
 
-  const fetchApiStatus = () => {
-    getApiKeyStatus()
-      .then((s) => setApiKeyStatus(s))
-      .catch(() => null);
-  };
-
   useEffect(() => {
     fetchUser();
-    fetchApiStatus();
   }, []);
 
   const handleSelectJob = (job: Job) => {
@@ -133,23 +123,6 @@ const MainApp: React.FC = () => {
             </button>
           </div>
 
-          {/* Free API Key Settings */}
-          <button
-            onClick={() => setIsApiKeyOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/50 text-xs font-semibold text-slate-200 transition-all cursor-pointer shadow-sm active:scale-95"
-            title={language === 'vi' ? 'Thiết lập API AI Miễn phí' : 'Setup Free AI API'}
-          >
-            <span className="text-amber-400">⚙️</span>
-            <span className="hidden sm:inline">
-              {language === 'vi' ? 'Cài đặt API' : 'API Settings'}
-            </span>
-            <span
-              className={`w-2 h-2 rounded-full ${
-                apiKeyStatus?.is_configured ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
-              }`}
-            />
-          </button>
-
           {/* User Account Button */}
           <div className="pl-1 border-l border-slate-800">
             <button
@@ -193,13 +166,6 @@ const MainApp: React.FC = () => {
         onClose={() => setIsAuthOpen(false)}
         currentUser={currentUser}
         onUserChanged={fetchUser}
-      />
-
-      {/* API Key Configuration Modal */}
-      <ApiKeyModal
-        isOpen={isApiKeyOpen}
-        onClose={() => setIsApiKeyOpen(false)}
-        onKeySaved={fetchApiStatus}
       />
 
       <footer className="border-t border-slate-800/80 py-5 text-center text-xs text-slate-500 bg-slate-950/40">
