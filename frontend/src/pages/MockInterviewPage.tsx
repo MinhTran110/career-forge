@@ -204,7 +204,7 @@ export const MockInterviewPage: React.FC<{
                       rel="noopener noreferrer"
                       className="text-sky-400 hover:text-sky-300 underline flex items-center gap-1 font-bold"
                     >
-                      <span>Xem tin gốc</span>
+                      <span>{language === 'vi' ? 'Xem tin gốc' : 'Original Post'}</span>
                       <span>↗</span>
                     </a>
                   )}
@@ -235,7 +235,7 @@ export const MockInterviewPage: React.FC<{
                 value={customJdText}
                 onChange={(e) => setCustomJdText(e.target.value)}
                 rows={3}
-                placeholder="Dán toàn bộ yêu cầu, trách nhiệm của vị trí vào đây..."
+                placeholder={language === 'vi' ? 'Dán toàn bộ yêu cầu, trách nhiệm của vị trí vào đây...' : 'Paste full job description requirements here...'}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-sky-500 font-sans"
               />
             </div>
@@ -339,7 +339,7 @@ export const MockInterviewPage: React.FC<{
                         </span>
                       </div>
                       <h3 className="text-sm font-bold text-white leading-relaxed">
-                        Câu {idx + 1}: {q.question}
+                        {language === 'vi' ? 'Câu' : 'Question'} {idx + 1}: {q.question}
                       </h3>
                     </div>
 
@@ -350,14 +350,14 @@ export const MockInterviewPage: React.FC<{
                       }}
                       className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer self-start shrink-0"
                     >
-                      {isActive ? 'Đang chọn' : 'Luyện câu này →'}
+                      {isActive ? (language === 'vi' ? 'Đang chọn' : 'Selected') : (language === 'vi' ? 'Luyện câu này →' : 'Practice this →')}
                     </button>
                   </div>
 
                   {/* Context and Why this is asked */}
                   <div className="mt-2.5 bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs space-y-2">
                     <div className="text-slate-300 leading-relaxed">
-                      <strong className="text-sky-400 font-bold">🔍 Lý do nhà tuyển dụng hỏi câu này:</strong>{' '}
+                      <strong className="text-sky-400 font-bold">{language === 'vi' ? '🔍 Lý do nhà tuyển dụng hỏi câu này:' : '🔍 Why recruiters ask this:'}</strong>{' '}
                       {q.cv_evidence_context}
                     </div>
 
@@ -375,13 +375,13 @@ export const MockInterviewPage: React.FC<{
                         <div className="mt-2.5 pl-2 border-l-2 border-indigo-500/50 space-y-2.5 pt-1">
                           <div className="bg-slate-900/90 p-3 rounded-lg border border-indigo-500/20 text-slate-200 space-y-1.5 whitespace-pre-line text-xs font-sans">
                             <div className="text-amber-400 font-bold text-[11px] uppercase tracking-wider">
-                              ⭐ Gợi ý cấu trúc trả lời mẫu (STAR):
+                              {language === 'vi' ? '⭐ Gợi ý cấu trúc trả lời mẫu (STAR):' : '⭐ Suggested STAR Model Answer:'}
                             </div>
                             <div className="text-slate-300 leading-relaxed">{q.sample_star_answer}</div>
                           </div>
 
                           <div className="text-[11px] text-slate-400">
-                            <strong className="text-emerald-400 font-semibold">💡 Mẹo phỏng vấn:</strong> {q.tips_for_candidate}
+                            <strong className="text-emerald-400 font-semibold">{language === 'vi' ? '💡 Mẹo phỏng vấn:' : '💡 Interview Tip:'}</strong> {q.tips_for_candidate}
                           </div>
                         </div>
                       )}
@@ -399,7 +399,7 @@ export const MockInterviewPage: React.FC<{
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
                   <span className="text-xs font-bold text-white uppercase tracking-wider">
-                    Luyện tập trả lời cho Câu {activeQuestionIndex + 1}
+                    {language === 'vi' ? 'Luyện tập trả lời cho Câu' : 'Practice Response for Question'} {activeQuestionIndex + 1}
                   </span>
                 </div>
                 <span className="text-xs text-slate-400">
@@ -413,20 +413,24 @@ export const MockInterviewPage: React.FC<{
 
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-slate-300 block">
-                  Soạn câu trả lời của bạn theo 4 trụ cột STAR (Situation - Task - Action - Result):
+                  {language === 'vi'
+                    ? 'Soạn câu trả lời của bạn theo 4 trụ cột STAR (Situation - Task - Action - Result):'
+                    : 'Draft your response following the 4 STAR pillars (Situation - Task - Action - Result):'}
                 </label>
                 <textarea
                   value={userAnswer}
                   onChange={(e) => setUserAnswer(e.target.value)}
                   rows={5}
-                  placeholder="Nhập câu trả lời thực tế của bạn, kèm số liệu đo lường cụ thể..."
+                  placeholder={language === 'vi' ? 'Nhập câu trả lời thực tế của bạn, kèm số liệu đo lường cụ thể...' : 'Enter your authentic response with quantifiable metrics and concrete impact...'}
                   className="w-full bg-slate-950 border border-slate-750 rounded-xl p-3.5 text-xs text-slate-200 outline-none focus:border-purple-500 leading-relaxed font-sans"
                 />
               </div>
 
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pt-1">
                 <span className="text-[11px] text-slate-400">
-                  💡 Giám khảo STAR sẽ phân tích tỷ lệ đóng góp cá nhân ('I' vs 'We') và số liệu định lượng (%, RPS).
+                  {language === 'vi'
+                    ? "💡 Giám khảo STAR sẽ phân tích tỷ lệ đóng góp cá nhân ('I' vs 'We') và số liệu định lượng (%, RPS)."
+                    : "💡 STAR evaluator checks individual agency ('I' vs 'We') and quantifiable metrics (%, RPS)."}
                 </span>
                 <Button
                   variant="primary"
@@ -437,10 +441,10 @@ export const MockInterviewPage: React.FC<{
                   {isSubmitting ? (
                     <span className="flex items-center gap-1.5">
                       <span className="animate-spin">↻</span>
-                      <span>Đang chấm điểm...</span>
+                      <span>{language === 'vi' ? 'Đang chấm điểm...' : 'Grading response...'}</span>
                     </span>
                   ) : (
-                    <span>✨ Chấm điểm STAR Rubric</span>
+                    <span>{language === 'vi' ? '✨ Chấm điểm STAR Rubric' : '✨ Score with STAR Rubric'}</span>
                   )}
                 </Button>
               </div>

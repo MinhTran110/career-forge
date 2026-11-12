@@ -169,7 +169,7 @@ const MainApp: React.FC = () => {
       />
 
       <footer className="border-t border-slate-800/80 py-5 text-center text-xs text-slate-500 bg-slate-950/40">
-        CareerForge © 2026 • Multi-Agent Autonomous Career Acceleration Platform • All 5 Specialist Agents Active
+        CareerForge © 2026 • {language === 'vi' ? 'Nền tảng Tăng tốc Sự nghiệp Đa Agent AI • Đã kích hoạt 5 Specialist Agents' : 'Multi-Agent Autonomous Career Acceleration Platform • All 5 Specialist Agents Active'}
       </footer>
     </div>
   );

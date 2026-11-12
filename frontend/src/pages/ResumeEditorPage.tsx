@@ -18,22 +18,39 @@ interface TransformationItem {
   applied: boolean;
 }
 
-export const ResumeEditorPage: React.FC<{
-  job?: Job | null;
-  onBack: () => void;
-  onNextToInterview?: () => void;
-}> = ({ job, onBack, onNextToInterview }) => {
-  const { t } = useLanguage();
-  const [copied, setCopied] = useState(false);
-  const [userPrompt, setUserPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [agentFeedback, setAgentFeedback] = useState<string | null>(null);
-  const [scoreDelta, setScoreDelta] = useState<string | null>(null);
-  const [showDebateStream, setShowDebateStream] = useState(true);
-  const [workflowId, setWorkflowId] = useState<string>(job ? `tailor_${job.id}` : 'tailor_session');
-  const { events, isConnected } = useAgentStream(workflowId);
+const DEFAULT_RESUME_VI = `# Kỹ sư AI & Backend Cấp cao
+**Email**: alex.engineer@careerforge.dev | **GitHub**: github.com/MinhTran110
 
-  const [content, setContent] = useState<string>(`# Senior AI Engineer Resume
+---
+
+## Tóm tắt Chuyên môn
+Kỹ sư Hạ tầng AI Cấp cao với chuyên môn đã xác thực về **FastAPI, Docker, Redis và PostgreSQL**. Đã có bề dày kinh nghiệm thiết kế kiến trúc nền tảng phân tán chịu lỗi cao, giảm 35% độ trễ và tối ưu hóa hệ thống xử lý lượng truy cập lớn.
+
+---
+
+## Năng lực Kỹ thuật Cốt lõi
+- **Ngôn ngữ & Framework chính:** Python, FastAPI, React 19, TypeScript, Celery
+- **Mô hình Kiến trúc:** Microservices, Kiến trúc Hướng sự kiện (Event-Driven), I/O Bất đồng bộ
+- **Hạ tầng & Lưu trữ dữ liệu:** Docker, PostgreSQL, Redis, Qdrant Vector Lake
+
+---
+
+## Kinh nghiệm Làm việc
+### Kỹ sư Backend Cấp cao | ScaleTech Systems
+*2022 – Hiện tại*
+- Thiết kế kiến trúc vi dịch vụ bất đồng bộ với FastAPI phục vụ 12 triệu lượt truy vấn/tháng, giảm 35% độ trễ p99 bằng giải pháp Redis connection pooling.
+- Mở rộng luồng xử lý dữ liệu thời gian thực, đáp ứng trên 10.000 lượt request mỗi giây lúc cao điểm, bằng giải pháp Celery workers và Docker container.
+- Chuẩn hóa và tự động hóa quy trình CI/CD, cắt giảm 40% chu kỳ phát hành phần mềm, bằng bộ kiểm thử Pytest tự động.
+
+---
+
+## Dự án Kỹ thuật Tiêu biểu
+### Hệ thống Đa tác nhân CareerForge Co-Pilot
+- Xây dựng công cụ kiểm chứng dữ liệu đa tác nhân, đạt 100% độ chính xác thực tế, ứng dụng tìm kiếm vector Qdrant.
+- Triển khai giao diện phản hồi dữ liệu luồng thời gian thực, đạt độ trễ dưới 200ms, ứng dụng FastAPI SSE và React 19.
+`;
+
+const DEFAULT_RESUME_EN = `# Senior AI & Backend Engineer
 **Email**: alex.engineer@careerforge.dev | **GitHub**: github.com/MinhTran110
 
 ---
@@ -63,7 +80,80 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
 ### CareerForge Multi-Agent Co-Pilot
 - Engineered multi-agent grounding engine, achieving 100% verified factual accuracy, by deploying Qdrant vector retrieval.
 - Implemented real-time streaming feedback interface, achieving sub-200ms latency, by deploying FastAPI SSE and React 19.
-`);
+`;
+
+const DEFAULT_TRANSFORMATIONS_VI: TransformationItem[] = [
+  {
+    id: 'diff_1',
+    original: 'Làm việc với FastAPI và tối ưu database cho công ty.',
+    improved: 'Thiết kế kiến trúc vi dịch vụ bất đồng bộ với FastAPI phục vụ 12 triệu lượt truy vấn/tháng, giảm 35% độ trễ p99 bằng giải pháp Redis connection pooling.',
+    groundedSource: 'Kho lưu trữ fastapi-cache',
+    skillTag: 'FastAPI & Redis Pooling',
+    impact: '+4.2% ATS Match',
+    applied: true,
+  },
+  {
+    id: 'diff_2',
+    original: 'Xây dựng pipeline xử lý dữ liệu và deploy bằng Docker.',
+    improved: 'Mở rộng luồng xử lý dữ liệu thời gian thực, đáp ứng trên 10.000 lượt request mỗi giây lúc cao điểm, bằng giải pháp Celery workers và Docker container.',
+    groundedSource: 'Commit GitHub 73404a2',
+    skillTag: 'Celery & Docker Container',
+    impact: '+3.8% ATS Match',
+    applied: true,
+  },
+];
+
+const DEFAULT_TRANSFORMATIONS_EN: TransformationItem[] = [
+  {
+    id: 'diff_1',
+    original: 'Worked with FastAPI and database optimization for company.',
+    improved: 'Architected asynchronous FastAPI microservices serving 12M monthly queries, achieving 35% p99 latency reduction, by deploying Redis connection pooling.',
+    groundedSource: 'fastapi-cache repository',
+    skillTag: 'FastAPI & Redis Pooling',
+    impact: '+4.2% ATS Match',
+    applied: true,
+  },
+  {
+    id: 'diff_2',
+    original: 'Built data processing pipelines and deployed with Docker.',
+    improved: 'Scaled event streaming pipeline for data ingestion, achieving handling over 10,000 peak requests per second, by deploying Celery workers and Docker container orchestration.',
+    groundedSource: 'GitHub Commit 73404a2',
+    skillTag: 'Celery & Docker Container',
+    impact: '+3.8% ATS Match',
+    applied: true,
+  },
+];
+
+export const ResumeEditorPage: React.FC<{
+  job?: Job | null;
+  onBack: () => void;
+  onNextToInterview?: () => void;
+}> = ({ job, onBack, onNextToInterview }) => {
+  const { t, language } = useLanguage();
+  const [copied, setCopied] = useState(false);
+  const [userPrompt, setUserPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [agentFeedback, setAgentFeedback] = useState<string | null>(null);
+  const [scoreDelta, setScoreDelta] = useState<string | null>(null);
+  const [showDebateStream, setShowDebateStream] = useState(false); // Default hidden to keep clean & minimal!
+  const [workflowId, setWorkflowId] = useState<string>(job ? `tailor_${job.id}` : 'tailor_session');
+  const { events, isConnected } = useAgentStream(workflowId);
+
+  const [content, setContent] = useState<string>(() => (language === 'vi' ? DEFAULT_RESUME_VI : DEFAULT_RESUME_EN));
+  const [transformations, setTransformations] = useState<TransformationItem[]>(() =>
+    language === 'vi' ? DEFAULT_TRANSFORMATIONS_VI : DEFAULT_TRANSFORMATIONS_EN
+  );
+
+  // Synchronize resume language when user toggles VI / EN
+  React.useEffect(() => {
+    if (language === 'vi') {
+      setContent((prev) => (prev.trim() === DEFAULT_RESUME_EN.trim() ? DEFAULT_RESUME_VI : prev));
+      setTransformations((prev) => (prev === DEFAULT_TRANSFORMATIONS_EN ? DEFAULT_TRANSFORMATIONS_VI : prev));
+    } else {
+      setContent((prev) => (prev.trim() === DEFAULT_RESUME_VI.trim() ? DEFAULT_RESUME_EN : prev));
+      setTransformations((prev) => (prev === DEFAULT_TRANSFORMATIONS_VI ? DEFAULT_TRANSFORMATIONS_EN : prev));
+    }
+  }, [language]);
 
   // Target requirements for the active position
   const targetSkills = useMemo(() => {
@@ -102,28 +192,6 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
       metricCount: metricMatches.length,
     };
   }, [content, targetSkills]);
-
-  // Dynamic list of transformation suggestions (Before vs After)
-  const [transformations, setTransformations] = useState<TransformationItem[]>([
-    {
-      id: 'diff_1',
-      original: 'Làm việc với FastAPI và tối ưu database cho công ty.',
-      improved: 'Thiết kế kiến trúc vi dịch vụ bất đồng bộ với FastAPI phục vụ 12 triệu lượt truy vấn/tháng, giảm 35% độ trễ p99 bằng giải pháp Redis connection pooling.',
-      groundedSource: 'Kho lưu trữ fastapi-cache',
-      skillTag: 'FastAPI & Redis Pooling',
-      impact: '+4.2% ATS Match',
-      applied: true,
-    },
-    {
-      id: 'diff_2',
-      original: 'Xây dựng pipeline xử lý dữ liệu và deploy bằng Docker.',
-      improved: 'Mở rộng luồng xử lý dữ liệu thời gian thực, đáp ứng trên 10.000 lượt request mỗi giây lúc cao điểm, bằng giải pháp Celery workers và Docker container.',
-      groundedSource: 'Commit GitHub 73404a2',
-      skillTag: 'Celery & Docker Container',
-      impact: '+3.8% ATS Match',
-      applied: true,
-    },
-  ]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
@@ -406,13 +474,13 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             }`}
           >
             <span>⚡</span>
-            <span>{showDebateStream ? 'Ẩn luồng Agent Swarm' : 'Hiện luồng Agent Swarm'}</span>
+            <span>{showDebateStream ? t('resume.toggle_swarm_hide') : t('resume.toggle_swarm_show')}</span>
           </button>
           <Button variant="secondary" onClick={handleCopy} className="cursor-pointer text-xs">
-            {copied ? '✓ Đã sao chép!' : '📋 Sao chép CV'}
+            {copied ? t('resume.copied') : `📋 ${t('resume.copy')}`}
           </Button>
           <Button variant="primary" onClick={handleDownloadPdf} className="cursor-pointer text-xs">
-            📄 Tải CV về máy (.md)
+            📄 {t('resume.download')}
           </Button>
         </div>
       </div>
@@ -425,11 +493,11 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
               <span>🎯 {t('resume.skill_analysis')}</span>
             </span>
             <span className="text-[11px] text-slate-400">
-              (Bấm vào kỹ năng cần lưu ý để tự động điền lệnh yêu cầu AI tối ưu)
+              {t('resume.click_skill_tip')}
             </span>
           </div>
           <span className="text-xs text-slate-400 font-mono">
-            Độ phủ kỹ năng: <strong className="text-sky-400 font-bold">{stats.coveragePercent}%</strong> ({stats.matched.length}/{targetSkills.length} kỹ năng)
+            {t('resume.coverage_label')}: <strong className="text-sky-400 font-bold">{stats.coveragePercent}%</strong> ({stats.matched.length}/{targetSkills.length} {language === 'vi' ? 'kỹ năng' : 'skills'})
           </span>
         </div>
 
@@ -451,10 +519,14 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
               key={skill}
               type="button"
               onClick={() => {
-                setUserPrompt(`Nhấn mạnh kinh nghiệm và giải pháp liên quan đến ${skill} bằng các công cụ đã được chứng minh...`);
+                setUserPrompt(
+                  language === 'vi'
+                    ? `Nhấn mạnh kinh nghiệm và giải pháp liên quan đến ${skill} bằng các công cụ đã được chứng minh...`
+                    : `Emphasize verified experience and high-impact solutions with ${skill}...`
+                );
               }}
               className="text-xs px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 font-semibold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-sm"
-              title="Bấm để ra lệnh AI tập trung vào kỹ năng này"
+              title={t('resume.click_skill_tip')}
             >
               <span>⚠️</span>
               <span>{skill}</span>
@@ -483,14 +555,14 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-ping" />
             <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <span>💬 Hướng dẫn AI chỉnh sửa CV</span>
+              <span>💬 {t('resume.prompt_console')}</span>
               <span className="text-[10px] text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-500/30">
-                Ra lệnh trực tiếp cho AI
+                {t('resume.prompt_console_tag')}
               </span>
             </span>
           </div>
           <span className="text-[11px] text-slate-400">
-            Trợ lý AI: <span className="text-sky-300 font-semibold">Chuyên gia Tối ưu CV</span> & <span className="text-emerald-300 font-semibold">Chuyên gia Kiểm chứng sự thật</span>
+            {t('resume.ai_assistants')}
           </span>
         </div>
 
@@ -502,7 +574,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleApplyPrompt()}
-              placeholder="Nhập yêu cầu: Ví dụ: Nhấn mạnh kinh nghiệm giảm 35% độ trễ và tối ưu bộ nhớ..."
+              placeholder={t('resume.prompt_placeholder')}
               className="w-full bg-slate-950/90 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400 transition-all font-sans"
             />
           </div>
@@ -515,11 +587,11 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             {isGenerating ? (
               <>
                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>AI đang tối ưu hóa...</span>
+                <span>{t('resume.optimizing')}</span>
               </>
             ) : (
               <>
-                <span>✨ AI Viết lại CV</span>
+                <span>✨ {t('resume.btn_rewrite')}</span>
               </>
             )}
           </Button>
@@ -527,36 +599,45 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
 
         {/* Quick Action Chips */}
         <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
-          <span className="text-slate-400 font-semibold">Gợi ý yêu cầu nhanh:</span>
+          <span className="text-slate-400 font-semibold">{t('resume.prompt_pill_label')}</span>
           <button
             onClick={() => {
-              const p = 'Bổ sung kỹ năng còn thiếu (Kubernetes, Helm) kèm bằng chứng dự án thực tế';
+              const p =
+                language === 'vi'
+                  ? 'Bổ sung kỹ năng còn thiếu (Kubernetes, Helm) kèm bằng chứng dự án thực tế'
+                  : 'Add missing skills (Kubernetes, Helm) backed by verified project evidence';
               setUserPrompt(p);
               handleApplyPrompt(p);
             }}
             className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-sky-300 border border-slate-700 hover:border-sky-500/40 cursor-pointer transition-all active:scale-95"
           >
-            🎯 Bổ sung kỹ năng còn thiếu
+            {t('resume.prompt_pill_missing')}
           </button>
           <button
             onClick={() => {
-              const p = 'Viết lại kinh nghiệm có số liệu ấn tượng (độ trễ p99, lượng truy cập, tối ưu bộ nhớ)';
+              const p =
+                language === 'vi'
+                  ? 'Viết lại kinh nghiệm có số liệu ấn tượng (độ trễ p99, lượng truy cập, tối ưu bộ nhớ)'
+                  : 'Rewrite bullet points with high-impact quantitative metrics (p99 latency, RPS, memory optimization)';
               setUserPrompt(p);
               handleApplyPrompt(p);
             }}
             className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-amber-300 border border-slate-700 hover:border-amber-500/40 cursor-pointer transition-all active:scale-95"
           >
-            ⚡ Thêm số liệu ấn tượng (Google X-Y-Z)
+            {t('resume.prompt_pill_metrics')}
           </button>
           <button
             onClick={() => {
-              const p = 'Nâng cấp giọng văn sang cấp độ Kỹ sư Trưởng / Quản lý kỹ thuật';
+              const p =
+                language === 'vi'
+                  ? 'Nâng cấp giọng văn sang cấp độ Kỹ sư Trưởng / Quản lý kỹ thuật'
+                  : 'Elevate professional tone to Principal / Lead Infrastructure Engineer level';
               setUserPrompt(p);
               handleApplyPrompt(p);
             }}
             className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-indigo-300 border border-slate-700 hover:border-indigo-500/40 cursor-pointer transition-all active:scale-95"
           >
-            👔 Giọng văn Kỹ sư Trưởng / Quản lý
+            {t('resume.prompt_pill_lead')}
           </button>
         </div>
 
@@ -576,7 +657,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
         {/* Dynamic ATS Score Gauge Card */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Độ khớp với công việc</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('resume.job_fit')}</span>
             <div className="flex items-center gap-1.5">
               {scoreDelta && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-black animate-bounce shadow-md">
@@ -590,7 +671,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
                   ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
                   : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
               }`}>
-                {stats.composite >= 85 ? 'SẴN SÀNG NỘP ĐƠN' : stats.composite >= 70 ? 'PHÙ HỢP KHÁ' : 'CẦN BỔ SUNG'}
+                {stats.composite >= 85 ? t('resume.status_ready') : stats.composite >= 70 ? t('resume.status_good') : t('resume.status_gap')}
               </span>
             </div>
           </div>
@@ -601,13 +682,13 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             </span>
             <span className="text-sm font-bold text-slate-400">/ 100</span>
             <span className="text-[11px] text-slate-500 ml-auto font-mono">
-              (Tính theo thời gian thực)
+              {t('resume.realtime')}
             </span>
           </div>
 
           <div className="space-y-2 pt-2 border-t border-slate-800 text-xs">
             <div className="flex justify-between text-slate-300">
-              <span>Độ phủ kỹ năng ({stats.matched.length}/{targetSkills.length})</span>
+              <span>{t('resume.coverage_label')} ({stats.matched.length}/{targetSkills.length})</span>
               <span className="font-bold text-sky-400">{stats.coveragePercent}%</span>
             </div>
             <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
@@ -618,7 +699,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             </div>
 
             <div className="flex justify-between text-slate-300">
-              <span>Độ xác thực bằng chứng thật (30%)</span>
+              <span>{t('resume.grounding_label')}</span>
               <span className="font-bold text-emerald-400">{stats.groundingScore}%</span>
             </div>
             <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
@@ -629,7 +710,7 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
             </div>
 
             <div className="flex justify-between text-slate-300">
-              <span>Mật độ số liệu ({stats.metricCount} con số định lượng)</span>
+              <span>{t('resume.metric_label', { count: stats.metricCount })}</span>
               <span className="font-bold text-indigo-400">{stats.metricScore}%</span>
             </div>
             <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
@@ -646,54 +727,54 @@ Results-driven **Senior AI Infrastructure Engineer** with verified expertise in 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                🔍 Gợi ý nâng cấp câu mô tả ({transformations.length} câu)
+                🔍 {t('resume.transformations_title', { count: transformations.length })}
               </h3>
               <span className="text-[10px] text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20 font-bold">
-                Linh hoạt theo Prompt
+                {t('resume.flexible_prompt')}
               </span>
             </div>
             <span className="text-[10px] text-emerald-400 font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800 hidden sm:inline">
-              Cấu trúc: Đạt [Kết quả X] bằng [Giải pháp Y] làm [Hành động Z]
+              {t('resume.google_formula')}
             </span>
           </div>
 
           <div className="space-y-3 text-xs max-h-[220px] overflow-y-auto pr-1">
-            {transformations.map((t) => (
-              <div key={t.id} className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800/90 space-y-2 hover:border-slate-700 transition-all">
+            {transformations.map((tItem) => (
+              <div key={tItem.id} className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800/90 space-y-2 hover:border-slate-700 transition-all">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">
-                    {t.skillTag}
+                    {tItem.skillTag}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-emerald-400 font-mono">{t.impact}</span>
+                    <span className="text-[10px] text-emerald-400 font-mono">{tItem.impact}</span>
                     <button
-                      onClick={() => handleApplyTransformation(t)}
+                      onClick={() => handleApplyTransformation(tItem)}
                       className={`text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer border ${
-                        t.applied && content.includes(t.improved)
+                        tItem.applied && content.includes(tItem.improved)
                           ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                           : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
                       }`}
                     >
-                      {t.applied && content.includes(t.improved) ? '✓ Đã áp dụng vào CV' : '⚡ Áp dụng câu này vào CV'}
+                      {tItem.applied && content.includes(tItem.improved) ? t('resume.applied_btn') : t('resume.apply_btn')}
                     </button>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-1.5 text-rose-400 line-through text-[11px]">
-                  <span className="shrink-0 font-semibold">❌ Câu cũ:</span>
-                  <span>"{t.original}"</span>
+                  <span className="shrink-0 font-semibold">{t('resume.original_label')}</span>
+                  <span>"{tItem.original}"</span>
                 </div>
 
                 <div className="flex items-start gap-1.5 text-emerald-300 font-medium text-[11px] leading-relaxed">
-                  <span className="shrink-0 font-semibold">✅ AI viết lại:</span>
-                  <span>"{t.improved}"</span>
+                  <span className="shrink-0 font-semibold">{t('resume.improved_label')}</span>
+                  <span>"{tItem.improved}"</span>
                 </div>
 
                 <div className="flex items-center gap-2 pt-0.5 text-[10px] text-slate-400">
                   <span className="px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-                    🛡️ Bằng chứng thật
+                    {t('resume.grounded_label')}
                   </span>
-                  <span>Từ: <code className="text-sky-300">{t.groundedSource}</code></span>
+                  <span>{t('resume.source_from')} <code className="text-sky-300">{tItem.groundedSource}</code></span>
                 </div>
               </div>
             ))}

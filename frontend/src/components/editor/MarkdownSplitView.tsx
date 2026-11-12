@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface MarkdownSplitViewProps {
   value: string;
@@ -6,6 +7,7 @@ interface MarkdownSplitViewProps {
 }
 
 export const MarkdownSplitView: React.FC<MarkdownSplitViewProps> = ({ value, onChange }) => {
+  const { t } = useLanguage();
   const [zoomLevel, setZoomLevel] = useState<'fit' | '100%'>('100%');
 
   // Simple Markdown renderer for ATS Document preview
@@ -87,10 +89,10 @@ export const MarkdownSplitView: React.FC<MarkdownSplitViewProps> = ({ value, onC
         <div className="bg-slate-950/90 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse" />
-            <span className="text-xs font-bold text-slate-200">Soạn thảo nội dung CV</span>
+            <span className="text-xs font-bold text-slate-200">{t('editor.title')}</span>
           </div>
           <span className="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-            Số liệu định lượng chuẩn
+            {t('editor.tag')}
           </span>
         </div>
         <textarea
@@ -100,8 +102,8 @@ export const MarkdownSplitView: React.FC<MarkdownSplitViewProps> = ({ value, onC
           className="flex-1 bg-slate-950/40 p-5 text-xs font-mono text-slate-200 outline-none resize-none leading-relaxed selection:bg-sky-500 selection:text-white"
         />
         <div className="bg-slate-950/80 px-4 py-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-          <span>{value.split('\n').length} dòng • {value.length} ký tự</span>
-          <span className="text-emerald-400">Sẵn sàng xuất file PDF</span>
+          <span>{t('editor.stats', { lines: value.split('\n').length, chars: value.length })}</span>
+          <span className="text-emerald-400">{t('editor.ready_pdf')}</span>
         </div>
       </div>
 
@@ -110,9 +112,9 @@ export const MarkdownSplitView: React.FC<MarkdownSplitViewProps> = ({ value, onC
         <div className="bg-slate-950/90 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs">📄</span>
-            <span className="text-xs font-bold text-slate-200">Xem trước CV khi in / nộp tuyển</span>
+            <span className="text-xs font-bold text-slate-200">{t('editor.preview_title')}</span>
             <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold">
-              Qua 100% cổng lọc tự động
+              {t('editor.preview_tag')}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -120,7 +122,7 @@ export const MarkdownSplitView: React.FC<MarkdownSplitViewProps> = ({ value, onC
               onClick={() => setZoomLevel(zoomLevel === '100%' ? 'fit' : '100%')}
               className="text-[10px] px-2.5 py-1 rounded bg-slate-850 hover:bg-slate-800 text-slate-300 border border-slate-700 cursor-pointer"
             >
-              {zoomLevel === '100%' ? 'Thu gọn vừa màn hình' : 'Tỷ lệ thật 100%'}
+              {zoomLevel === '100%' ? t('editor.zoom_fit') : t('editor.zoom_100')}
             </button>
           </div>
         </div>
@@ -139,8 +141,8 @@ export const MarkdownSplitView: React.FC<MarkdownSplitViewProps> = ({ value, onC
           >
             {/* ATS Header Note (Non-printed watermark) */}
             <div className="mb-3 pb-2 border-b border-dashed border-slate-300 flex items-center justify-between text-[9px] font-sans text-slate-400">
-              <span>ĐỊNH DẠNG KHỔ GIẤY A4 CHUẨN • BỐ CỤC 1 CỘT DỄ ĐỌC</span>
-              <span>TƯƠNG THÍCH MÁY QUÉT CV: 99.8%</span>
+              <span>{t('editor.watermark_left')}</span>
+              <span>{t('editor.watermark_right')}</span>
             </div>
 
             {/* Rendered Document Elements */}

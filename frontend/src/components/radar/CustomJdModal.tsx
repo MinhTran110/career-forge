@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { analyzeCustomJd } from '@/services/api';
 import { Job } from '@/types';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface CustomJdModalProps {
   isOpen: boolean;
@@ -9,10 +10,11 @@ interface CustomJdModalProps {
 }
 
 export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, onJobCreated }) => {
+  const { t, language } = useLanguage();
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
-  const [salary, setSalary] = useState('$120,000 - $160,000');
-  const [location, setLocation] = useState('Remote');
+  const [salary, setSalary] = useState(language === 'vi' ? '30.000.000 - 50.000.000 VND' : '$120,000 - $160,000');
+  const [location, setLocation] = useState(language === 'vi' ? 'Hà Nội / TP.HCM / Remote' : 'Remote / Hybrid');
   const [url, setUrl] = useState('');
   const [description, setDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -55,10 +57,10 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span>📋</span>
-              <span>Analyze External Job Posting</span>
+              <span>{t('custom_jd.title')}</span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Paste any JD from LinkedIn, Indeed, or TopCV to extract skills and rank compatibility
+              {t('custom_jd.sub')}
             </p>
           </div>
           <button
@@ -72,7 +74,7 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Job Title *</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">{t('custom_jd.job_title')}</label>
               <input
                 type="text"
                 value={title}
@@ -83,12 +85,12 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Company</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">{t('custom_jd.company')}</label>
               <input
                 type="text"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                placeholder="e.g. Stripe, OpenAI..."
+                placeholder="e.g. Tech Corp..."
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-500 text-xs text-white outline-none"
               />
             </div>
@@ -96,22 +98,22 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Salary Range</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">{t('custom_jd.salary')}</label>
               <input
                 type="text"
                 value={salary}
                 onChange={(e) => setSalary(e.target.value)}
-                placeholder="$100k - $140k"
+                placeholder="Salary range"
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-500 text-xs text-white outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Location</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">{t('custom_jd.location')}</label>
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="Remote / Hybrid"
+                placeholder="Location"
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-500 text-xs text-white outline-none"
               />
             </div>
@@ -119,25 +121,25 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
 
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Link bài đăng gốc (URL trên LinkedIn, Indeed, TopCV... - Tùy chọn)
+              {t('custom_jd.url')}
             </label>
             <input
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://www.linkedin.com/jobs/view/..."
+              placeholder="https://..."
               className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-500 text-xs text-white outline-none"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Job Description (JD Text) *
+              {t('custom_jd.desc_label')}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Paste the full job requirements, responsibilities, and qualifications here..."
+              placeholder="Paste full job description requirements here..."
               rows={6}
               required
               className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-500 text-xs text-white outline-none font-mono resize-none"
@@ -152,14 +154,14 @@ export const CustomJdModal: React.FC<CustomJdModalProps> = ({ isOpen, onClose, o
               onClick={onClose}
               className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
             >
-              Cancel
+              {t('custom_jd.cancel')}
             </button>
             <button
               type="submit"
               disabled={isAnalyzing}
               className="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-sky-500/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
             >
-              {isAnalyzing ? 'Extracting & Ranking...' : 'Analyze with Market Hunter'}
+              {isAnalyzing ? t('custom_jd.analyzing') : t('custom_jd.submit')}
             </button>
           </div>
         </form>

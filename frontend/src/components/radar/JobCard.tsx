@@ -109,9 +109,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSelect, onQuickView }) 
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="text-xs text-sky-400 hover:text-sky-200 underline underline-offset-2 flex items-center gap-0.5 cursor-pointer font-semibold"
-                title="Mở bài tuyển dụng gốc"
+                title={t('dash.open_original')}
               >
-                <span>Xem tin gốc</span>
+                <span>{t('dash.original_post')}</span>
                 <span className="text-[11px]">↗</span>
               </a>
             </>

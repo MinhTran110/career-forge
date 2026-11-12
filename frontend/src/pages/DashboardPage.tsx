@@ -146,11 +146,11 @@ export const DashboardPage: React.FC<{
         {loading || isScanning ? (
           <div className="text-center p-16 text-slate-500 border border-slate-800/80 rounded-2xl bg-slate-900/40">
             <div className="animate-spin w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full mx-auto mb-3" />
-            Đang quét và đối chiếu vị trí tuyển dụng với hồ sơ năng lực của bạn...
+            {t('dash.scanning_message')}
           </div>
         ) : filteredJobs.length === 0 ? (
           <div className="text-center p-12 text-slate-400 border border-slate-800/80 rounded-2xl bg-slate-900/40">
-            Không tìm thấy vị trí tuyển dụng trong nhóm "{activeTier}".
+            {t('dash.empty_tier')}
           </div>
         ) : (
           <div className="space-y-4">
@@ -203,7 +203,7 @@ export const DashboardPage: React.FC<{
                     </a>
                   ) : (
                     <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 font-medium">
-                      📋 Tin tự nhập (Custom JD)
+                      📋 {t('dash.custom_jd_badge')}
                     </span>
                   )}
                 </div>
@@ -221,7 +221,7 @@ export const DashboardPage: React.FC<{
             </div>
 
             <div>
-              <h4 className="text-xs font-bold uppercase text-slate-400 mb-1.5">Mô tả công việc:</h4>
+              <h4 className="text-xs font-bold uppercase text-slate-400 mb-1.5">{t('dash.job_desc')}</h4>
               <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
                 {quickViewJob.description}
               </p>
@@ -229,7 +229,7 @@ export const DashboardPage: React.FC<{
 
             {quickViewJob.requirements && quickViewJob.requirements.length > 0 && (
               <div>
-                <h4 className="text-xs font-bold uppercase text-slate-400 mb-1.5">Yêu cầu chính:</h4>
+                <h4 className="text-xs font-bold uppercase text-slate-400 mb-1.5">{t('dash.job_reqs')}</h4>
                 <div className="flex flex-wrap gap-1.5">
                   {quickViewJob.requirements.map((req, i) => (
                     <span key={i} className="text-[11px] px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-300 font-medium">
@@ -259,7 +259,7 @@ export const DashboardPage: React.FC<{
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-sky-400 hover:text-sky-200 border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
                 >
-                  <span>🌐 Mở bài đăng tuyển dụng gốc</span>
+                  <span>🌐 {t('dash.open_original')}</span>
                   <span>↗</span>
                 </a>
               ) : (
@@ -269,7 +269,7 @@ export const DashboardPage: React.FC<{
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold transition-all cursor-pointer"
                 >
-                  <span>🔍 Tìm kiếm bài đăng trên Google</span>
+                  <span>🔍 {t('dash.search_google')}</span>
                   <span>↗</span>
                 </a>
               )}
@@ -279,7 +279,7 @@ export const DashboardPage: React.FC<{
                   onClick={() => setQuickViewJob(null)}
                   className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
                 >
-                  Đóng
+                  {t('dash.close')}
                 </button>
                 <button
                   onClick={() => {
