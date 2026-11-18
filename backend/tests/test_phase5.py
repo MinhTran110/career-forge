@@ -107,7 +107,7 @@ async def test_interview_api_lifecycle():
         assert list_res.status_code == 200
         assert any(s["id"] == session_id for s in list_res.json())
 
-        # 6. Generate Questions from CV & JD
+        # 6. Generate Questions from CV & JD (Expansion & Custom count test)
         cv_gen_res = await client.post(
             "/api/v1/interviews/generate-questions-from-cv",
             headers=headers,
@@ -116,13 +116,48 @@ async def test_interview_api_lifecycle():
                 "job_description": "Microservices architect with Python, FastAPI, Docker, and Redis.",
                 "cv_skills": ["Python", "FastAPI", "Docker", "PostgreSQL"],
                 "target_requirements": ["Python", "FastAPI", "Redis", "Kafka", "Kubernetes"],
-                "num_questions": 4,
+                "num_questions": 6,
             },
         )
         assert cv_gen_res.status_code == 200, cv_gen_res.text
         cv_q_data = cv_gen_res.json()
-        assert len(cv_q_data["questions"]) == 4
+        assert len(cv_q_data["questions"]) == 6
         assert len(cv_q_data["matched_skills"]) > 0
         assert "FastAPI" in cv_q_data["matched_skills"] or "Python" in cv_q_data["matched_skills"]
         assert "skill_evaluated" in cv_q_data["questions"][0]
         assert "sample_star_answer" in cv_q_data["questions"][0]
+
+        # 7. Test load more with existing_question_ids
+        first_ids = [q["id"] for q in cv_q_data["questions"][:3]]
+        more_res = await client.post(
+            "/api/v1/interviews/generate-questions-from-cv",
+            headers=headers,
+            json={
+                "job_title": "Senior Backend Engineer (VNG)",
+                "job_description": "Microservices architect with Python, FastAPI, Docker, and Redis.",
+                "cv_skills": ["Python", "FastAPI", "Docker", "PostgreSQL"],
+                "target_requirements": ["Python", "FastAPI", "Redis", "Kafka", "Kubernetes"],
+                "num_questions": 3,
+                "existing_question_ids": first_ids,
+            },
+        )
+        assert more_res.status_code == 200
+        more_data = more_res.json()
+        assert len(more_data["questions"]) == 3
+        # Ensure fresh questions are returned
+        assert not any(q["id"] in first_ids for q in more_data["questions"])
+
+        # 8. Submit Answer to a custom/dynamic question index with question_text
+        custom_ans_res = await client.post(
+            f"/api/v1/interviews/{session_id}/answer",
+            headers=headers,
+            json={
+                "question_index": 5,
+                "question_text": "How do you mitigate PostgreSQL deadlocks under high concurrency?",
+                "answer_text": "In our distributed service, we established uniform lock ordering and implemented exponential backoff retries with jitter, reducing deadlocks to zero.",
+            },
+        )
+        assert custom_ans_res.status_code == 200
+        custom_session = custom_ans_res.json()
+        assert custom_session["overall_score"] > 60.0
+

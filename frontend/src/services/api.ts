@@ -188,6 +188,8 @@ export const generateInterviewQuestionsFromCv = async (payload: {
   cv_skills?: string[];
   target_requirements?: string[];
   num_questions?: number;
+  existing_question_ids?: string[];
+  category_focus?: string;
 }): Promise<GenerateQuestionsResponse> => {
   await ensureAuthenticated();
   const response = await apiClient.post<GenerateQuestionsResponse>(
@@ -197,20 +199,27 @@ export const generateInterviewQuestionsFromCv = async (payload: {
   return response.data;
 };
 
-export const createInterviewSession = async (jobId?: string, title?: string) => {
+export const createInterviewSession = async (jobId?: string, title?: string, questions?: any[]) => {
   await ensureAuthenticated();
   const response = await apiClient.post('/interviews/session', {
     job_id: jobId,
     title,
+    questions,
   });
   return response.data;
 };
 
-export const submitInterviewAnswer = async (sessionId: string, questionIndex: number, answerText: string) => {
+export const submitInterviewAnswer = async (
+  sessionId: string,
+  questionIndex: number,
+  answerText: string,
+  questionText?: string
+) => {
   await ensureAuthenticated();
   const response = await apiClient.post(`/interviews/${sessionId}/answer`, {
     question_index: questionIndex,
     answer_text: answerText,
+    question_text: questionText,
   });
   return response.data;
 };

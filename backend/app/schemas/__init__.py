@@ -120,11 +120,13 @@ class InterviewSessionCreate(BaseModel):
     job_id: str | None = None
     title: str | None = None
     interview_type: str = "technical_and_behavioral"
+    questions: list[dict[str, Any]] = []
 
 
 class AnswerSubmission(BaseModel):
     question_index: int = 0
     answer_text: str
+    question_text: str | None = None
 
 
 class InterviewSessionResponse(BaseModel):
@@ -147,6 +149,8 @@ class GenerateQuestionsFromCvRequest(BaseModel):
     cv_skills: list[str] = []
     target_requirements: list[str] = []
     num_questions: int = 4
+    existing_question_ids: list[str] = []
+    category_focus: str | None = None
 
 
 class InterviewQuestionItem(BaseModel):

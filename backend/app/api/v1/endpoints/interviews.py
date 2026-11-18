@@ -61,6 +61,8 @@ async def generate_questions_from_cv(
         job_description=job_desc,
         target_requirements=requirements,
         num_questions=payload.num_questions,
+        existing_question_ids=payload.existing_question_ids,
+        category_focus=payload.category_focus,
     )
     return result
 
@@ -83,13 +85,16 @@ async def create_interview_session(
 
     title = payload.title or f"{job_title} Technical & Behavioral Simulator"
 
-    # Generate tailored questions
-    questions = star_interviewer.generate_interview_questions(
-        job_title=job_title,
-        tech_stack=tech_stack,
-        requirements=requirements,
-        num_questions=3,
-    )
+    # Generate tailored questions or use client-provided customized questions
+    if payload.questions:
+        questions = payload.questions
+    else:
+        questions = star_interviewer.generate_interview_questions(
+            job_title=job_title,
+            tech_stack=tech_stack,
+            requirements=requirements,
+            num_questions=3,
+        )
 
     now = datetime.now(timezone.utc)
     new_session = InterviewSession(
@@ -127,18 +132,25 @@ async def submit_question_answer(
 
     questions = list(session.questions)
     if payload.question_index < 0 or payload.question_index >= len(questions):
-        raise HTTPException(status_code=400, detail="Invalid question index")
-
-    target_q = questions[payload.question_index]
-    eval_result = star_interviewer.evaluate_star_answer(
-        question=target_q.get("question", ""),
-        answer_text=payload.answer_text,
-    )
-
-    # Attach evaluation to target question
-    target_q["user_answer"] = payload.answer_text
-    target_q["star_evaluation"] = eval_result
-    questions[payload.question_index] = target_q
+        # Gracefully handle dynamic or custom question index
+        target_q = {"question": payload.question_text or "General Technical & Behavioral Question"}
+        eval_result = star_interviewer.evaluate_star_answer(
+            question=target_q.get("question", ""),
+            answer_text=payload.answer_text,
+        )
+        target_q["user_answer"] = payload.answer_text
+        target_q["star_evaluation"] = eval_result
+        questions.append(target_q)
+    else:
+        target_q = questions[payload.question_index]
+        q_text = payload.question_text or target_q.get("question", "")
+        eval_result = star_interviewer.evaluate_star_answer(
+            question=q_text,
+            answer_text=payload.answer_text,
+        )
+        target_q["user_answer"] = payload.answer_text
+        target_q["star_evaluation"] = eval_result
+        questions[payload.question_index] = target_q
 
     # Recompute cumulative overall score
     evaluated_scores = [q["star_evaluation"]["overall_score"] for q in questions if "star_evaluation" in q]

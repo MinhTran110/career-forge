@@ -70,6 +70,8 @@ class StarInterviewerAgent:
         job_description: str = "",
         target_requirements: Optional[List[str]] = None,
         num_questions: int = 4,
+        existing_question_ids: Optional[List[str]] = None,
+        category_focus: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Generates hyper-tailored interview questions cross-referencing candidate's CV skills with the target Job Description."""
         cv_list = [s.strip() for s in (cv_skills or []) if s.strip()]
@@ -91,6 +93,7 @@ class StarInterviewerAgent:
         primary_match = matched_skills[0] if matched_skills else "Python/Backend"
         secondary_match = matched_skills[1] if len(matched_skills) > 1 else (cv_list[1] if len(cv_list) > 1 else "Database/Caching")
         gap_skill = missing_skills[0] if missing_skills else "Kubernetes & Distributed Tracing"
+        existing_ids = set(existing_question_ids or [])
 
         # Check if live LLM is configured
         llm_questions = []
@@ -103,12 +106,15 @@ class StarInterviewerAgent:
                     "Mỗi câu hỏi phải đi kèm: skill_evaluated, cv_evidence_context (lý do hỏi dựa vào CV/JD), sample_star_answer (gợi ý trả lời theo STAR: Tình huống - Nhiệm vụ - Hành động - Kết quả), tips_for_candidate.\n"
                     "Trả về JSON định dạng mảng: [{\"id\": \"q1\", \"category\": \"...\", \"question\": \"...\", \"skill_evaluated\": \"...\", \"cv_evidence_context\": \"...\", \"sample_star_answer\": \"...\", \"tips_for_candidate\": \"...\"}]"
                 )
+                exclude_clause = f"Lưu ý: Không tạo trùng lặp với các câu hỏi có id hoặc chủ đề sau: {', '.join(existing_ids)}.\n" if existing_ids else ""
+                category_clause = f"Ưu tiên tập trung vào danh mục: {category_focus}.\n" if category_focus else ""
                 user_prompt = (
                     f"Vị trí tuyển dụng: {job_title}\n"
                     f"Kỹ năng trong CV ứng viên: {', '.join(cv_list)}\n"
                     f"Kỹ năng trùng khớp (Matched): {', '.join(matched_skills)}\n"
                     f"Kỹ năng còn thiếu trong CV so với JD: {', '.join(missing_skills)}\n"
                     f"Trích đoạn mô tả JD: {job_description[:600]}\n"
+                    f"{exclude_clause}{category_clause}"
                     f"Hãy tạo {num_questions} câu hỏi phỏng vấn chuẩn mực bằng Tiếng Việt."
                 )
                 resp = self.model_gateway.generate_text_sync(user_prompt, system_prompt=system_prompt, temperature=0.4)
@@ -116,12 +122,13 @@ class StarInterviewerAgent:
                 if match:
                     parsed = json.loads(match.group(0))
                     if isinstance(parsed, list) and len(parsed) > 0:
-                        llm_questions = parsed
+                        llm_questions = [q for q in parsed if q.get("id") not in existing_ids]
             except Exception:
                 llm_questions = []
 
         if not llm_questions:
-            llm_questions = [
+            # 10 comprehensive, role-tailored questions covering full engineering lifecycle
+            standard_master_pool = [
                 {
                     "id": "cv_q_tech_deep",
                     "category": "Kỹ thuật chuyên sâu (CV Skills)",
@@ -157,8 +164,71 @@ class StarInterviewerAgent:
                     "cv_evidence_context": "Vị trí Senior đòi hỏi tư duy làm chủ (ownership), khả năng thương lượng và giải quyết xung đột bằng dữ liệu.",
                     "sample_star_answer": "Tình huống: Trước ngày ra mắt sản phẩm 3 ngày, phát hiện một query gây lock bảng người dùng.\nNhiệm vụ: Quyết định hoãn release hay vá tạm thời để kịp tiến độ kinh doanh.\nHành động: Tôi họp khẩn với Product Owner, đưa ra giải pháp trung gian: áp dụng read-replica và cache tạm thời, đồng thời lên lịch refactor ngay trong sprint kế tiếp.\nKết quả: Sản phẩm ra mắt đúng ngày thành công, zero downtime, và nợ kỹ thuật được giải quyết triệt để 1 tuần sau đó.",
                     "tips_for_candidate": "Sử dụng cấu trúc STAR rõ ràng: Tình huống (S) -> Nhiệm vụ (T) -> Hành động cá nhân (A) -> Kết quả đo lường được (R)."
+                },
+                {
+                    "id": "cv_q_db_optimization",
+                    "category": "Tối ưu hóa Database & Caching",
+                    "question": f"Khi cơ sở dữ liệu quan hệ (PostgreSQL) và bộ nhớ đệm (Redis) đạt ngưỡng tải cao trong hệ thống {job_title}, bạn áp dụng chiến lược phân tầng cache, chống Cache Stampede / Avalanche và tối ưu composite index như thế nào?",
+                    "skill_evaluated": "Database Tuning, Indexing & Cache Invalidation",
+                    "cv_evidence_context": "Kỹ năng quản trị cơ sở dữ liệu và xử lý truy vấn hiệu năng cao là yếu tố quyết định cho vị trí kỹ thuật cấp cao.",
+                    "sample_star_answer": "Tình huống: Khi lượng truy cập flash-sale tăng 400%, database bị nghẽn CPU lên đến 98% do truy vấn phức tạp lặp lại.\nNhiệm vụ: Hạ tải CPU DB xuống dưới 40% mà vẫn duy trì tính chính xác của dữ liệu tồn kho.\nHành động: Tôi thêm composite index có chọn lọc, thiết lập Redis cache-aside với random TTL để chống Cache Stampede, và dùng distributed lock của Redis cho thao tác cập nhật tồn kho.\nKết quả: Tải CPU DB giảm còn 32%, thời gian phản hồi API duy trì ổn định dưới 45ms.",
+                    "tips_for_candidate": "Giải thích rõ các kỹ thuật EXPLAIN ANALYZE, query plan, cách đặt TTL có jitter và cơ chế khóa phân tán."
+                },
+                {
+                    "id": "cv_q_api_resilience",
+                    "category": "Khả năng chịu tải & Độ tin cậy API",
+                    "question": f"Để bảo vệ các microservices khỏi sự cố sập dây chuyền (Cascading Failure), bạn áp dụng các mẫu thiết kế Circuit Breaker, Rate Limiting và Idempotent API như thế nào?",
+                    "skill_evaluated": "Resilience Engineering & Fault Tolerance",
+                    "cv_evidence_context": "Hệ thống quy mô lớn yêu cầu khả năng phục hồi nhanh và cơ chế bảo vệ tài nguyên chống quá tải.",
+                    "sample_star_answer": "Tình huống: Cổng thanh toán bên thứ ba bị chập chờn, khiến toàn bộ worker thread phía backend bị treo giữ kết nối.\nNhiệm vụ: Cô lập dịch vụ thanh toán bị lỗi để các tính năng khác của ứng dụng vẫn phục vụ bình thường.\nHành động: Tôi tích hợp Circuit Breaker với ngưỡng mở mạch sau 5 lần timeout liên tiếp, cấp fallback response cho client, kèm Token Bucket Rate Limiter ở API Gateway.\nKết quả: Ngăn chặn 100% rủi ro sập hệ thống dây chuyền, hệ thống đạt độ khả dụng 99.95% trong đợt cao điểm.",
+                    "tips_for_candidate": "Nêu rõ ngưỡng kích hoạt (trip threshold), thời gian nửa mở (half-open state) và giải pháp fallback thân thiện với người dùng."
+                },
+                {
+                    "id": "cv_q_security",
+                    "category": "Bảo mật & Xác thực hệ thống",
+                    "question": f"Trong môi trường phân tán microservices, bạn thiết kế cơ chế bảo mật (OAuth2, Stateless JWT revocation, RBAC) và bảo vệ dữ liệu nhạy cảm của người dùng ra sao?",
+                    "skill_evaluated": "API Security & Identity Management",
+                    "cv_evidence_context": "Nhà tuyển dụng rất chú trọng an toàn thông tin và tuân thủ nguyên tắc Least Privilege trong thiết kế dịch vụ.",
+                    "sample_star_answer": "Tình huống: Cần quản lý phân quyền theo vai trò (RBAC) cho 500,000 người dùng với nhiều cấp độ bảo mật.\nNhiệm vụ: Đảm bảo kiểm tra quyền truy cập nhanh dưới 2ms mà vẫn có khả năng vô hiệu hóa tức thì token khi phát hiện tài khoản bị xâm nhập.\nHành động: Tôi triển khai Short-lived JWT kết hợp Redis Blacklist cho thao tác logout/revoke, mã hóa dữ liệu nhạy cảm at-rest bằng AES-256.\nKết quả: Thời gian xác thực chỉ tốn 1.2ms/request, vượt qua kiểm định an toàn thông tin độc lập không có lỗ hổng nghiêm trọng.",
+                    "tips_for_candidate": "Nhấn mạnh nguyên tắc Zero Trust, phân biệt giữa Authn và Authz, và cơ chế token rotation an toàn."
+                },
+                {
+                    "id": "cv_q_observability",
+                    "category": "Quan sát hệ thống & Giám sát (Observability)",
+                    "question": f"Làm thế nào để xây dựng hệ thống giám sát toàn diện (Observability) bao gồm Metrics, Structured Logs và Distributed Tracing (OpenTelemetry) cho một nền tảng xử lý dữ liệu lớn?",
+                    "skill_evaluated": "OpenTelemetry & Observability",
+                    "cv_evidence_context": "Giúp đội ngũ phát hiện lỗi trước khi người dùng báo cáo và rút ngắn thời gian khắc phục sự cố (MTTR).",
+                    "sample_star_answer": "Tình huống: Khách hàng phàn nàn một số đơn hàng bị chậm nhưng hệ thống log truyền thống không hiển thị rõ nghẽn ở service nào.\nNhiệm vụ: Đo lường chính xác hành trình của từng request xuyên suốt 8 microservices khác nhau.\nHành động: Tôi chuẩn hóa Trace ID truyền qua HTTP headers với OpenTelemetry, thiết lập dashboard theo dõi 4 Golden Signals và cấu hình cảnh báo thông minh chống Alert Fatigue.\nKết quả: Giảm thời gian xác định nguyên nhân gốc rễ (MTTR) từ 45 phút xuống dưới 6 phút.",
+                    "tips_for_candidate": "Tập trung vào 4 tín hiệu vàng: Latency, Traffic, Errors, Saturation và giá trị của Trace Context Propagation."
+                },
+                {
+                    "id": "cv_q_cicd_devops",
+                    "category": "CI/CD & Vận hành Hạ tầng",
+                    "question": f"Bạn hãy trình bày quy trình CI/CD tự động hóa từ khâu kiểm thử (Unit/Integration Test) đến khâu phát hành Zero-Downtime với Docker/Kubernetes và quy trình Rollback khi có biến cố?",
+                    "skill_evaluated": "CI/CD Automation & Docker Orchestration",
+                    "cv_evidence_context": "Đảm bảo tốc độ phát hành phần mềm liên tục nhưng vẫn giữ vững tính ổn định tuyệt đối của hệ thống.",
+                    "sample_star_answer": "Tình huống: Quy trình triển khai thủ công trước đây mất 40 phút và tiềm ẩn lỗi cấu hình môi trường.\nNhiệm vụ: Tự động hóa hoàn toàn luồng CI/CD, đảm bảo release mới không làm rớt kết nối người dùng hiện tại.\nHành động: Tôi xây dựng pipeline tự động chạy linting, pytest, build Docker image tối ưu đa tầng (multi-stage) và áp dụng chiến lược Rolling Update với Healthcheck probes.\nKết quả: Rút ngắn thời gian release xuống còn 7 phút, hoàn toàn zero downtime và tự động rollback sau 30 giây nếu healthcheck thất bại.",
+                    "tips_for_candidate": "Đề cập đến multi-stage build để giảm dung lượng image, readiness/liveness probes và tự động hóa rollback."
+                },
+                {
+                    "id": "cv_q_leadership",
+                    "category": "Lãnh đạo kỹ thuật & Văn hóa Đội ngũ",
+                    "question": f"Với vai trò kỹ sư Senior tại dự án {job_title}, bạn thiết lập văn hóa Code Review, định hướng tài liệu kiến trúc (RFC/ADR) và nâng cao năng lực cho các thành viên trẻ (mentorship) như thế nào?",
+                    "skill_evaluated": "Engineering Leadership & Mentorship",
+                    "cv_evidence_context": "Vị trí cấp cao luôn đòi hỏi kỹ năng dẫn dắt, tạo ảnh hưởng tích cực và nâng tầm toàn bộ đội ngũ kỹ thuật.",
+                    "sample_star_answer": "Tình huống: Đội ngũ mở rộng nhanh thêm 6 kỹ sư mới, dẫn đến phong cách viết code không đồng nhất và nhiều lỗi sót qua review.\nNhiệm vụ: Chuẩn hóa quy trình review và tăng tốc độ hòa nhập của thành viên mới.\nHành động: Tôi soạn tài liệu Engineering Guidelines, tổ chức chia sẻ kiến trúc hàng tuần, áp dụng quy trình RFC cho các tính năng lớn và kèm cặp trực tiếp 2 bạn kỹ sư.\nKết quả: Giảm 40% lỗi phát hiện sau release, thời gian onboarding kỹ sư mới rút ngắn từ 4 tuần xuống 1.5 tuần.",
+                    "tips_for_candidate": "Thể hiện tư duy xây dựng tập thể, sự kiên nhẫn, việc đưa phản hồi mang tính xây dựng và chuẩn mực kỹ thuật cao."
                 }
             ]
+
+            # Filter out existing questions to ensure freshness
+            fresh_pool = [q for q in standard_master_pool if q["id"] not in existing_ids]
+
+            # If filtered pool is smaller than requested, fallback to any available
+            if len(fresh_pool) < num_questions:
+                fresh_pool = fresh_pool + [q for q in standard_master_pool if q not in fresh_pool]
+
+            llm_questions = fresh_pool
 
         return {
             "job_title": job_title,
