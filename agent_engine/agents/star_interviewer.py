@@ -177,7 +177,7 @@ class StarInterviewerAgent:
                 {
                     "id": "cv_q_api_resilience",
                     "category": "Khả năng chịu tải & Độ tin cậy API",
-                    "question": f"Để bảo vệ các microservices khỏi sự cố sập dây chuyền (Cascading Failure), bạn áp dụng các mẫu thiết kế Circuit Breaker, Rate Limiting và Idempotent API như thế nào?",
+                    "question": "Để bảo vệ các microservices khỏi sự cố sập dây chuyền (Cascading Failure), bạn áp dụng các mẫu thiết kế Circuit Breaker, Rate Limiting và Idempotent API như thế nào?",
                     "skill_evaluated": "Resilience Engineering & Fault Tolerance",
                     "cv_evidence_context": "Hệ thống quy mô lớn yêu cầu khả năng phục hồi nhanh và cơ chế bảo vệ tài nguyên chống quá tải.",
                     "sample_star_answer": "Tình huống: Cổng thanh toán bên thứ ba bị chập chờn, khiến toàn bộ worker thread phía backend bị treo giữ kết nối.\nNhiệm vụ: Cô lập dịch vụ thanh toán bị lỗi để các tính năng khác của ứng dụng vẫn phục vụ bình thường.\nHành động: Tôi tích hợp Circuit Breaker với ngưỡng mở mạch sau 5 lần timeout liên tiếp, cấp fallback response cho client, kèm Token Bucket Rate Limiter ở API Gateway.\nKết quả: Ngăn chặn 100% rủi ro sập hệ thống dây chuyền, hệ thống đạt độ khả dụng 99.95% trong đợt cao điểm.",
@@ -186,7 +186,7 @@ class StarInterviewerAgent:
                 {
                     "id": "cv_q_security",
                     "category": "Bảo mật & Xác thực hệ thống",
-                    "question": f"Trong môi trường phân tán microservices, bạn thiết kế cơ chế bảo mật (OAuth2, Stateless JWT revocation, RBAC) và bảo vệ dữ liệu nhạy cảm của người dùng ra sao?",
+                    "question": "Trong môi trường phân tán microservices, bạn thiết kế cơ chế bảo mật (OAuth2, Stateless JWT revocation, RBAC) và bảo vệ dữ liệu nhạy cảm của người dùng ra sao?",
                     "skill_evaluated": "API Security & Identity Management",
                     "cv_evidence_context": "Nhà tuyển dụng rất chú trọng an toàn thông tin và tuân thủ nguyên tắc Least Privilege trong thiết kế dịch vụ.",
                     "sample_star_answer": "Tình huống: Cần quản lý phân quyền theo vai trò (RBAC) cho 500,000 người dùng với nhiều cấp độ bảo mật.\nNhiệm vụ: Đảm bảo kiểm tra quyền truy cập nhanh dưới 2ms mà vẫn có khả năng vô hiệu hóa tức thì token khi phát hiện tài khoản bị xâm nhập.\nHành động: Tôi triển khai Short-lived JWT kết hợp Redis Blacklist cho thao tác logout/revoke, mã hóa dữ liệu nhạy cảm at-rest bằng AES-256.\nKết quả: Thời gian xác thực chỉ tốn 1.2ms/request, vượt qua kiểm định an toàn thông tin độc lập không có lỗ hổng nghiêm trọng.",
@@ -195,7 +195,7 @@ class StarInterviewerAgent:
                 {
                     "id": "cv_q_observability",
                     "category": "Quan sát hệ thống & Giám sát (Observability)",
-                    "question": f"Làm thế nào để xây dựng hệ thống giám sát toàn diện (Observability) bao gồm Metrics, Structured Logs và Distributed Tracing (OpenTelemetry) cho một nền tảng xử lý dữ liệu lớn?",
+                    "question": "Làm thế nào để xây dựng hệ thống giám sát toàn diện (Observability) bao gồm Metrics, Structured Logs và Distributed Tracing (OpenTelemetry) cho một nền tảng xử lý dữ liệu lớn?",
                     "skill_evaluated": "OpenTelemetry & Observability",
                     "cv_evidence_context": "Giúp đội ngũ phát hiện lỗi trước khi người dùng báo cáo và rút ngắn thời gian khắc phục sự cố (MTTR).",
                     "sample_star_answer": "Tình huống: Khách hàng phàn nàn một số đơn hàng bị chậm nhưng hệ thống log truyền thống không hiển thị rõ nghẽn ở service nào.\nNhiệm vụ: Đo lường chính xác hành trình của từng request xuyên suốt 8 microservices khác nhau.\nHành động: Tôi chuẩn hóa Trace ID truyền qua HTTP headers với OpenTelemetry, thiết lập dashboard theo dõi 4 Golden Signals và cấu hình cảnh báo thông minh chống Alert Fatigue.\nKết quả: Giảm thời gian xác định nguyên nhân gốc rễ (MTTR) từ 45 phút xuống dưới 6 phút.",
@@ -204,7 +204,7 @@ class StarInterviewerAgent:
                 {
                     "id": "cv_q_cicd_devops",
                     "category": "CI/CD & Vận hành Hạ tầng",
-                    "question": f"Bạn hãy trình bày quy trình CI/CD tự động hóa từ khâu kiểm thử (Unit/Integration Test) đến khâu phát hành Zero-Downtime với Docker/Kubernetes và quy trình Rollback khi có biến cố?",
+                    "question": "Bạn hãy trình bày quy trình CI/CD tự động hóa từ khâu kiểm thử (Unit/Integration Test) đến khâu phát hành Zero-Downtime với Docker/Kubernetes và quy trình Rollback khi có biến cố?",
                     "skill_evaluated": "CI/CD Automation & Docker Orchestration",
                     "cv_evidence_context": "Đảm bảo tốc độ phát hành phần mềm liên tục nhưng vẫn giữ vững tính ổn định tuyệt đối của hệ thống.",
                     "sample_star_answer": "Tình huống: Quy trình triển khai thủ công trước đây mất 40 phút và tiềm ẩn lỗi cấu hình môi trường.\nNhiệm vụ: Tự động hóa hoàn toàn luồng CI/CD, đảm bảo release mới không làm rớt kết nối người dùng hiện tại.\nHành động: Tôi xây dựng pipeline tự động chạy linting, pytest, build Docker image tối ưu đa tầng (multi-stage) và áp dụng chiến lược Rolling Update với Healthcheck probes.\nKết quả: Rút ngắn thời gian release xuống còn 7 phút, hoàn toàn zero downtime và tự động rollback sau 30 giây nếu healthcheck thất bại.",
